@@ -1,5 +1,5 @@
 {
-  "json_version": "0.70",
+  "json_version": "1.0",
   "net.ipv4.tcp_rmem": "4096 16384 4194304",
   "net.ipv4.tcp_wmem": "4096 16384 4194304",
   "net.core.somaxconn": "4096",

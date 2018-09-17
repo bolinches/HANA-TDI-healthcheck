@@ -19,7 +19,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "0.36"
+HOH_VERSION = "1.0"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -53,7 +53,7 @@ def show_header(hoh_version,json_version):
         print
         print("Please use " + GITHUB_URL + " to get latest versions and report issues about hoh.")
         print
-        print("The purpouse of hoh is to supplment the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
+        print("The purpose of hoh is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
         print
         print("You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note")
         print
@@ -83,6 +83,9 @@ def check_processor():
 
 def check_os(os_dictionary):
     #Checks the OS string vs the JSON file. If supported goes, if explecitely not supported quits. If no match also quits
+    print
+    print("Checking OS version")
+    print
 
     with open("/etc/os-release") as os_release_file:
         os_release = {}
@@ -94,7 +97,6 @@ def check_os(os_dictionary):
 
     try:
         if os_dictionary[os_release['PRETTY_NAME']] == 'OK':
-            print
             print(GREEN + "OK: "+ NOCOLOR + " " + os_release['PRETTY_NAME'] + " is a supported OS for this tool")
         else:
             print
@@ -131,6 +133,40 @@ def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_po
     #If we made it this far lets return the dictionary. This was being stored in its own file before
     return json_version
 
+def check_time():
+    #Leverages timedatectl from systemd to check if NTP is configured and if is is actively syncing. Raises error count if some of those are not happening.
+    errors = 0
+    print
+    print("Checking NTP status")
+    print
+    #Lets check if the tool is even there
+    try:
+        return_code = subprocess.call(['timedatectl','status'],stdout=DEVNULL, stderr=DEVNULL)
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run timedatectl") # Not installed or else.
+
+    #First we see if NTP is configured. Agnostic of ntpd or chronyd
+    timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
+    grep_rc_ntp = subprocess.call(['grep', 'NTP synchronized: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
+    timedatectl.wait()
+
+    if grep_rc_ntp == 0:
+        print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
+    else:
+        print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system.")
+        print
+        errors = errors + 1
+
+    #Lets check if sync is actually working
+    timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
+    grep_rc_sync = subprocess.call(['grep', 'Network time on: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
+    if grep_rc_sync == 0:
+        print(GREEN + "OK: " + NOCOLOR + "Network time sync is activated in this system")
+    else:
+        print(RED + "ERROR: " + NOCOLOR + "Network time sync is not activated in this system")
+        errors = errors + 1
+    return errors
+
 def saptune_check():
     #It uses saptune command to check the solution and show the avaialble notes. Changes version to version of saptune, we are just calling saptune
     errors = 0
@@ -149,7 +185,7 @@ def saptune_check():
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run saptune") # Not installed or else. On SuSE for SAP it is installed by default
 
-    print("The following individual SAP notes recommendations are avaialble via sapnote")
+    print("The following individual SAP notes recommendations are available via sapnote")
     print("Consider enabling ALL of them, including 2161991 as only sets NOOP as I/O scheduler")
     print
     #subprocess.check_output(['saptune','note','list'])
@@ -226,27 +262,33 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
-def print_errors(saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
     print("The summary of this run:")
+
+    if timedatectl_errors > 0:
+        print(RED + "time configuration reported " + str(timedatectl_errors) + " deviation/s" + NOCOLOR)
+    else:
+        print(GREEN + "time configurations reported no deviations" + NOCOLOR)
+
     if saptune_errors > 0:
         print(RED + "saptune reported deviations" + NOCOLOR)
     else:
         print(GREEN + "saptune reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
-        print(RED + "sysctl reported " + str(sysctl_errors) + " deviations" + NOCOLOR)
+        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation/s" + NOCOLOR)
     else:
         print(GREEN + "sysctl reported no deviations" + NOCOLOR)
 
     if packages_errors > 0:
-        print(RED + "packages reported " + str(packages_errors) + " deviations" + NOCOLOR)
+        print(RED + "packages reported " + str(packages_errors) + " deviation/s" + NOCOLOR)
     else:
         print(GREEN + "packages reported no deviations" + NOCOLOR)
 
     if ibm_power_packages_errors > 0:
-        print(RED + "IBM service and productivity tools packages reported " + str(sysctl_errors) + " deviations" + NOCOLOR)
+        print(RED + "IBM service and productivity tools packages reported " + str(sysctl_errors) + " deviation/s" + NOCOLOR)
     else:
         print(GREEN + "IBM service and productivity tools packages reported no deviations" + NOCOLOR)
 
@@ -267,6 +309,7 @@ def main():
     check_os(os_dictionary)
 
     #Run
+    timedatectl_errors = check_time()
     saptune_errors = saptune_check()
     sysctl_errors = sysctl_check(sysctl_dictionary)
     packages_errors = packages_check(packages_dictionary)
@@ -274,7 +317,7 @@ def main():
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors)
     print
     print
 
