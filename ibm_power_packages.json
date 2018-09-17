@@ -1,0 +1,7 @@
+{
+  "json_version": "0.1",
+  "ibm-power-nonmanaged-sles12": 0,
+  "ibm-power-baremetal-sles12": 0,
+  "ibm-power-managed-sles12": 0,
+  "ibm-power-kvmguest-sles12": 1
+}
