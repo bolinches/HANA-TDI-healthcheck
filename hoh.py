@@ -288,7 +288,7 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors
         print(GREEN + "packages reported no deviations" + NOCOLOR)
 
     if ibm_power_packages_errors > 0:
-        print(RED + "IBM service and productivity tools packages reported " + str(ibm_power_packages_errors) + " deviation/s" + NOCOLOR)
+        print(RED + "IBM service and productivity tools packages reported deviations" + NOCOLOR)
     else:
         print(GREEN + "IBM service and productivity tools packages reported no deviations" + NOCOLOR)
 
