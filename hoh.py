@@ -19,7 +19,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.2"
+HOH_VERSION = "1.3"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -30,7 +30,7 @@ def load_json(json_file_str):
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "Cannot open JSON file: " + json_file_str)
 
-def check_paramerters():
+def check_parameters():
     main_script=sys.argv[0]
     error_message = RED + "QUIT: " + NOCOLOR + "To run hoh, you need to pass the argument of type of storage (XFS/NFS/ESS). In example: ./hoh.py XFS\n"
     try: #in case no argument is passed
@@ -90,6 +90,8 @@ def check_os(os_dictionary):
     with open("/etc/os-release") as os_release_file:
         os_release = {}
         for line in os_release_file:
+            if line == "\n": #RedHat has empty line
+                continue
             key,value = line.rstrip().split("=")
             os_release[key] = value.strip('"')
 
@@ -295,7 +297,7 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors
 
 def main():
     #Check parameters are passed
-    storage = check_paramerters()
+    storage = check_parameters()
 
     #JSON loads
     os_dictionary = load_json("supported_OS.json")

@@ -15,7 +15,7 @@ The purpose of hoh is to supplement the official tools like HWCCT not to substit
 You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note
 
 JSON files versions:
-        supported OS:           0.2
+        supported OS:           0.3
         sysctl:                 1.1
         packages:               0.2
         ibm power packages:     0.1
