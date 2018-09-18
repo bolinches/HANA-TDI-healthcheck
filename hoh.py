@@ -19,7 +19,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.0"
+HOH_VERSION = "1.1"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -288,7 +288,7 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors
         print(GREEN + "packages reported no deviations" + NOCOLOR)
 
     if ibm_power_packages_errors > 0:
-        print(RED + "IBM service and productivity tools packages reported " + str(sysctl_errors) + " deviation/s" + NOCOLOR)
+        print(RED + "IBM service and productivity tools packages reported " + str(ibm_power_packages_errors) + " deviation/s" + NOCOLOR)
     else:
         print(GREEN + "IBM service and productivity tools packages reported no deviations" + NOCOLOR)
 
