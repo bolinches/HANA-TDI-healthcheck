@@ -241,6 +241,7 @@ def packages_check(packages_dictionary):
                 print(GREEN + "OK: " + NOCOLOR + package + " installation status is as expected")
             else:
                 print(RED + "ERROR: " + NOCOLOR + package + " installation status is *NOT* as expected")
+                errors = errors + 1
     print
     return(errors)
 
