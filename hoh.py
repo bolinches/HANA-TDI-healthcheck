@@ -19,7 +19,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.1"
+HOH_VERSION = "1.2"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -214,7 +214,7 @@ def sysctl_check(sysctl_dictionary):
                 else:
                     print(GREEN + "OK: " + NOCOLOR + sysctl + " it is set to the recommended value of " + recommended_value_str)
             except:
-                    print(YELLOW + "WARNING: " + NOCOLOR + sysctl + "current value does not exists")
+                    print(YELLOW + "WARNING: " + NOCOLOR + sysctl + " current value does not exists")
                     errors = errors + 1
     print
     return errors
