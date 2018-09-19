@@ -356,7 +356,7 @@ def main():
     linux_distribution = check_distribution()
     if linux_distribution == "suse":
         check_os_suse(os_dictionary)
-    elif inux_distribution == "redhat":
+    elif linux_distribution == "redhat":
         check_os_redhat(os_dictionary)
     else:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
