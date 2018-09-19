@@ -208,6 +208,47 @@ def check_time():
             errors = errors + 1
     return errors
 
+def tune_adm_check():
+    errors = 0
+    tuned_profiles_package = "tuned-profiles-sap-hana"
+    print
+    print("Checking if tune-adm profile is set to sap-hana")
+    print
+    profile_package_installed_rc = rpm_is_installed(tuned_profiles_package)
+    if profile_package_installed_rc == 1:
+        print (RED + "ERROR: " + NOCOLOR + tuned_profiles_package + " is not installed. ")
+        errors = errors + 1
+
+    if profile_package_installed_rc == 0: #RPM is installed lets check the if applied
+
+        try: #Can we run tune-adm?
+            return_code = subprocess.call(['tuned-adm','active'],stdout=DEVNULL, stderr=DEVNULL)
+        except:
+            sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run tuned-adm. It is a needed package for this tool\n") # Not installed or else.
+
+        tuned_adm = subprocess.Popen(['tuned-adm', 'active'], stdout=subprocess.PIPE)
+        grep_rc_tuned = subprocess.call(['grep', 'Current active profile: sap-hana'], stdin=tuned_adm.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        tune_adm.wait()
+
+        if grep_rc_tuned == 0: #sap-hana profile is active
+            print(GREEN + "OK: " + NOCOLOR + "current active profile is sap-hana")
+        else: #Some error
+            print(RED + "ERROR: " + NOCOLOR + "current active profile is not sap-hana")
+            errors = errors + 1
+
+        try: #Is it fully matching?
+            return_code = subprocess.call(['tuned-adm','verify'],stdout=DEVNULL, stderr=DEVNULL)
+        except:
+            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully using the profile sap-hana")
+            print
+            errors = errors + 1
+
+        if return_code == 0:
+            print(GREEN + "OK: " + NOCOLOR + "tuned is using the profile sap-hana")
+            print
+
+    return errors
+
 def saptune_check():
     #It uses saptune command to check the solution and show the avaialble notes. Changes version to version of saptune, we are just calling saptune
     errors = 0
@@ -316,9 +357,9 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors
         print(GREEN + "time configurations reported no deviations" + NOCOLOR)
 
     if saptune_errors > 0:
-        print(RED + "saptune reported deviations" + NOCOLOR)
+        print(RED + "saptune/tuned reported deviations" + NOCOLOR)
     else:
-        print(GREEN + "saptune reported no deviations" + NOCOLOR)
+        print(GREEN + "saptune/tuned reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
         print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
@@ -354,6 +395,7 @@ def main():
 
     #Check linux_distribution
     linux_distribution = check_distribution()
+
     if linux_distribution == "suse":
         check_os_suse(os_dictionary)
     elif linux_distribution == "redhat":
@@ -364,12 +406,16 @@ def main():
 
     #Run
     timedatectl_errors = check_time()
+
     if linux_distribution == "suse":
         saptune_errors = saptune_check()
     if linux_distribution == "redhat":
-        saptune_errors = 0 #For the moment on Redhat
+        saptune_errors = tune_adm_check()
+
     sysctl_warnings,sysctl_errors = sysctl_check(sysctl_dictionary)
+
     packages_errors = packages_check(packages_dictionary)
+
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
     #Exit protocol
