@@ -80,7 +80,7 @@ def check_processor():
         print
         sys.exit(error_message)
 
-def check_os(os_dictionary):
+def check_os_suse(os_dictionary):
     #Checks the OS string vs the JSON file. If supported goes, if explecitely not supported quits. If no match also quits
     print
     print("Checking OS version")
@@ -105,6 +105,18 @@ def check_os(os_dictionary):
     except:
         print
         sys.exit(error_message)
+
+def check_os_redhat(os_dictionary):
+
+
+def check_distribution():
+    #Decide if this is a redhat or a suse
+    what_dist = platform.dist()[0]
+    if what_dist == "redhat":
+        return what_dist
+    else:#everything esle we say is suse. It gets caught later if not. Suse does not return any string for dist
+        what_dist = "suse"
+        return what_dist
 
 def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary):
     #Gets the versions of the json files into a dictionary
@@ -316,6 +328,11 @@ def main():
     #Check parameters are passed
     storage = check_parameters()
 
+    #Check linux_distribution
+    linux_distribution = check_distribution()
+    print (linux_distribution)
+    sys.exit("That is all for now\n"
+
     #JSON loads
     os_dictionary = load_json("supported_OS.json")
     sysctl_dictionary = load_json(storage + "_sysctl.json")
@@ -326,7 +343,7 @@ def main():
     json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary)
     show_header(HOH_VERSION,json_version)
     check_processor()
-    check_os(os_dictionary)
+    check_os_suse(os_dictionary)
 
     #Run
     timedatectl_errors = check_time()
