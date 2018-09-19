@@ -227,7 +227,7 @@ def tuned_adm_check():
             sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run tuned-adm. It is a needed package for this tool\n") # Not installed or else.
 
         tuned_adm = subprocess.Popen(['tuned-adm', 'active'], stdout=subprocess.PIPE)
-        grep_rc_tuned = subprocess.call(['grep', 'Current active profile: sap-hana'], stdin=tuned_adm.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        grep_rc_tuned = subprocess.call(['grep', '"Current active profile: sap-hana"'], stdin=tuned_adm.stdout, stdout=DEVNULL, stderr=DEVNULL)
         tuned_adm.wait()
 
         if grep_rc_tuned == 0: #sap-hana profile is active
@@ -240,12 +240,12 @@ def tuned_adm_check():
         return_code = subprocess.call(['tuned-adm','verify'],stdout=DEVNULL, stderr=DEVNULL)
         #except:
         if return_code == 1:
-            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully matching the profile sap-hana")
+            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully matching the active profile")
             print
             errors = errors + 1
 
         if return_code == 0:
-            print(GREEN + "OK: " + NOCOLOR + "tuned is matching the profile sap-hana")
+            print(GREEN + "OK: " + NOCOLOR + "tuned is matching the active profile")
             print
 
     return errors
