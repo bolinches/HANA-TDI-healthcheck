@@ -208,7 +208,7 @@ def check_time():
             errors = errors + 1
     return errors
 
-def tune_adm_check():
+def tuned_adm_check():
     errors = 0
     tuned_profiles_package = "tuned-profiles-sap-hana"
     print
@@ -228,7 +228,7 @@ def tune_adm_check():
 
         tuned_adm = subprocess.Popen(['tuned-adm', 'active'], stdout=subprocess.PIPE)
         grep_rc_tuned = subprocess.call(['grep', 'Current active profile: sap-hana'], stdin=tuned_adm.stdout, stdout=DEVNULL, stderr=DEVNULL)
-        tune_adm.wait()
+        tuned_adm.wait()
 
         if grep_rc_tuned == 0: #sap-hana profile is active
             print(GREEN + "OK: " + NOCOLOR + "current active profile is sap-hana")
@@ -410,7 +410,7 @@ def main():
     if linux_distribution == "suse":
         saptune_errors = saptune_check()
     if linux_distribution == "redhat":
-        saptune_errors = tune_adm_check()
+        saptune_errors = tuned_adm_check()
 
     sysctl_warnings,sysctl_errors = sysctl_check(sysctl_dictionary)
 
