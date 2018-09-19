@@ -106,9 +106,6 @@ def check_os_suse(os_dictionary):
         print
         sys.exit(error_message)
 
-def check_os_redhat(os_dictionary):
-
-
 def check_distribution():
     #Decide if this is a redhat or a suse
     what_dist = platform.dist()[0]
