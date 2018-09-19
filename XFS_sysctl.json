@@ -1,5 +1,5 @@
 {
-  "json_version": "1.1",
+  "json_version": "1.2",
   "net.ipv4.tcp_rmem": "65536 262088 56623104",
   "net.ipv4.tcp_wmem": "65536 262088 56623104",
   "net.ipv4.tcp_mem": "56623104 56623104 56623104",
@@ -11,6 +11,5 @@
   "net.ipv4.tcp_tw_recycle": "1",
   "net.ipv4.tcp_timestamps": "1",
   "net.ipv4.tcp_slow_start_after_idle": "0",
-  "net.ipv4.tcp_syn_retries": "8",
-  "vm.pagecache_limit_mb": "0"
+  "net.ipv4.tcp_syn_retries": "8"
 }

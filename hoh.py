@@ -19,7 +19,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.3"
+HOH_VERSION = "1.4"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -90,7 +90,7 @@ def check_os(os_dictionary):
     with open("/etc/os-release") as os_release_file:
         os_release = {}
         for line in os_release_file:
-            if line == "\n": #RedHat has empty line
+            if line == "\n": #Protect against empty line
                 continue
             key,value = line.rstrip().split("=")
             os_release[key] = value.strip('"')
@@ -198,6 +198,7 @@ def saptune_check():
 def sysctl_check(sysctl_dictionary):
     #Runs checks versus values on sysctl on JSON file
     errors = 0
+    warnings = 0
     print("Checking sysctl settings:")
     print
     for sysctl in sysctl_dictionary.keys():
@@ -216,10 +217,10 @@ def sysctl_check(sysctl_dictionary):
                 else:
                     print(GREEN + "OK: " + NOCOLOR + sysctl + " it is set to the recommended value of " + recommended_value_str)
             except:
-                    print(YELLOW + "WARNING: " + NOCOLOR + sysctl + " current value does not exists")
-                    errors = errors + 1
+                    print(YELLOW + "WARNING: " + NOCOLOR + sysctl + " does not apply to this OS")
+                    warnings = warnings + 1
     print
-    return errors
+    return warnings,errors
 
 def rpm_is_installed(rpm_package):
     #returns the RC of rpm -q rpm_package or quits if it cannot run rpm
@@ -265,13 +266,13 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
-def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
     print("The summary of this run:")
 
     if timedatectl_errors > 0:
-        print(RED + "time configuration reported " + str(timedatectl_errors) + " deviation/s" + NOCOLOR)
+        print(RED + "time configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
     else:
         print(GREEN + "time configurations reported no deviations" + NOCOLOR)
 
@@ -281,12 +282,14 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors
         print(GREEN + "saptune reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
-        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation/s" + NOCOLOR)
+        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warnings" + NOCOLOR)
+    elif sysctl_warnings > 0:
+        print (YELLOW + "sysctl reported " + sysctl_warnings + " warnings" + NOCOLOR)
     else:
         print(GREEN + "sysctl reported no deviations" + NOCOLOR)
 
     if packages_errors > 0:
-        print(RED + "packages reported " + str(packages_errors) + " deviation/s" + NOCOLOR)
+        print(RED + "packages reported " + str(packages_errors) + " deviation[s]" + NOCOLOR)
     else:
         print(GREEN + "packages reported no deviations" + NOCOLOR)
 
@@ -314,13 +317,13 @@ def main():
     #Run
     timedatectl_errors = check_time()
     saptune_errors = saptune_check()
-    sysctl_errors = sysctl_check(sysctl_dictionary)
+    sysctl_warnings,sysctl_errors = sysctl_check(sysctl_dictionary)
     packages_errors = packages_check(packages_dictionary)
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(timedatectl_errors,saptune_errors,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
     print
     print
 
