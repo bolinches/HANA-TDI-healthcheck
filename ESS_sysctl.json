@@ -1,5 +1,5 @@
 {
-  "json_version": "0.2",
+  "json_version": "0.3",
   "net.ipv4.tcp_rmem": "65536 262088 56623104",
   "net.ipv4.tcp_wmem": "65536 262088 56623104",
   "net.ipv4.tcp_mem": "56623104 56623104 56623104",

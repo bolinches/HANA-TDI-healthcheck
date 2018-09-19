@@ -1,5 +1,5 @@
 {
-  "json_version": "1.1",
+  "json_version": "1.2",
   "net.core.rmem_max": "16777216",
   "net.core.wmem_max": "16777216",
   "net.core.rmem_default": "16777216",

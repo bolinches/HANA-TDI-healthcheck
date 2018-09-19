@@ -2,7 +2,6 @@
 import json
 import os
 import sys
-#import time
 import subprocess
 import platform
 
@@ -19,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.4"
+HOH_VERSION = "1.5"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -139,13 +138,13 @@ def check_time():
     #Leverages timedatectl from systemd to check if NTP is configured and if is is actively syncing. Raises error count if some of those are not happening.
     errors = 0
     print
-    print("Checking NTP status")
+    print("Checking NTP status with timedatectl")
     print
     #Lets check if the tool is even there
     try:
         return_code = subprocess.call(['timedatectl','status'],stdout=DEVNULL, stderr=DEVNULL)
     except:
-        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run timedatectl") # Not installed or else.
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run timedatectl. It is a needed package for this tool\n") # Not installed or else.
 
     #First we see if NTP is configured. Agnostic of ntpd or chronyd
     timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
@@ -155,7 +154,7 @@ def check_time():
     if grep_rc_ntp == 0:
         print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
     else:
-        print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system.")
+        print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system. Please check timedatectl command")
         print
         errors = errors + 1
 
@@ -165,7 +164,7 @@ def check_time():
     if grep_rc_sync == 0:
         print(GREEN + "OK: " + NOCOLOR + "Network time sync is activated in this system")
     else:
-        print(RED + "ERROR: " + NOCOLOR + "Network time sync is not activated in this system")
+        print(RED + "ERROR: " + NOCOLOR + "Network time sync is not activated in this system. Please check timedatectl command")
         errors = errors + 1
     return errors
 
@@ -185,7 +184,7 @@ def saptune_check():
             print
             errors = errors + 1
     except:
-        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run saptune") # Not installed or else. On SuSE for SAP it is installed by default
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run saptune. It is a needed package for this tool\n") # Not installed or else. On SuSE for SAP it is installed by default
 
     print("The following individual SAP notes recommendations are available via sapnote")
     print("Consider enabling ALL of them, including 2161991 as only sets NOOP as I/O scheduler")
@@ -228,7 +227,7 @@ def rpm_is_installed(rpm_package):
     try:
         return_code = subprocess.call(['rpm','-q',rpm_package],stdout=DEVNULL, stderr=DEVNULL)
     except:
-        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run rpm")
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run rpm. It is a needed package for this tool\n")
     return return_code
 
 def packages_check(packages_dictionary):
@@ -282,9 +281,9 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors
         print(GREEN + "saptune reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
-        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warnings" + NOCOLOR)
+        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
     elif sysctl_warnings > 0:
-        print (YELLOW + "sysctl reported " + sysctl_warnings + " warnings" + NOCOLOR)
+        print (YELLOW + "sysctl reported " + sysctl_warnings + " warning[s]" + NOCOLOR)
     else:
         print(GREEN + "sysctl reported no deviations" + NOCOLOR)
 
