@@ -364,7 +364,8 @@ def main():
 
     #Run
     timedatectl_errors = check_time()
-    saptune_errors = saptune_check()
+    #saptune_errors = saptune_check()
+    saptune_errors = 0 #For the moment on Redhat
     sysctl_warnings,sysctl_errors = sysctl_check(sysctl_dictionary)
     packages_errors = packages_check(packages_dictionary)
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
