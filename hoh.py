@@ -106,6 +106,22 @@ def check_os_suse(os_dictionary):
         print
         sys.exit(error_message)
 
+def check_os_redhat(os_dictionary):
+    #Check redhat-release vs dictionary list
+    redhat_distribution = platform.linux_distribution()
+    redhat_distribution_str = redhat_distribution[0] + " " + redhat_distribution[1]
+
+    error_message = RED + "QUIT: " + NOCOLOR + " " + redhat_distribution_str + " is not a supported OS for this tool\n"
+    try:
+        if os_dictionary[redhat_distribution_str] == 'OK':
+        print(GREEN + "OK: "+ NOCOLOR + " " + redhat_distribution_str + " is a supported OS for this tool")
+        else:
+            print
+            sys.exit(error_message)
+    except:
+        print
+        sys.exit(error_message)
+
 def check_distribution():
     #Decide if this is a redhat or a suse
     what_dist = platform.dist()[0]
@@ -325,11 +341,6 @@ def main():
     #Check parameters are passed
     storage = check_parameters()
 
-    #Check linux_distribution
-    linux_distribution = check_distribution()
-    print (linux_distribution)
-    sys.exit("That is all for now\n")
-
     #JSON loads
     os_dictionary = load_json("supported_OS.json")
     sysctl_dictionary = load_json(storage + "_sysctl.json")
@@ -340,7 +351,16 @@ def main():
     json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary)
     show_header(HOH_VERSION,json_version)
     check_processor()
-    check_os_suse(os_dictionary)
+
+    #Check linux_distribution
+    linux_distribution = check_distribution()
+    if linux_distribution == "suse":
+        check_os_suse(os_dictionary)
+    elif inux_distribution == "redhat":
+        check_os_redhat(os_dictionary)
+    else:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
+
 
     #Run
     timedatectl_errors = check_time()
