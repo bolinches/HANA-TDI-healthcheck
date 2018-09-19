@@ -6,7 +6,7 @@ Main logic besides this tool:
 
 To run the tool just the get the hoh.py and the jsons (git clone or whichever way) and run it. It does not use any python module that is not installed by default so should be fine (the output is color coded cannot be seen here), To run it you need to pass one argument XFS/NFS/ESS, depending on the storage used for HANA data and logs
 ```
-Welcome to HANA OS Healthchecker (hoh) version 1.3
+Welcome to HANA OS Healthchecker (hoh) version 1.6
 
 Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about hoh.
 
@@ -16,9 +16,9 @@ You should always check your system with latest version of HWCCT as explained on
 
 JSON files versions:
         supported OS:           0.3
-        sysctl:                 1.1
+        sysctl:                 1.3
         packages:               0.2
-        ibm power packages:     0.1
+        ibm power packages:     0.2
 
 This software comes with absolutely no warranty of any kind. Use it at your own risk
 
@@ -32,7 +32,7 @@ As example output of a system:
 ```
 Checking OS version
 
-OK:  SUSE Linux Enterprise Server for SAP Applications 12 SP2 is a supported OS for this tool
+OK:  SUSE Linux Enterprise Server 12 SP3 is a supported OS for this tool
 
 Checking NTP status
 
@@ -41,38 +41,40 @@ OK: Network time sync is activated in this system
 
 Checking if saptune solution is set to HANA
 
-2205917 - SAP HANA DB: Recommended OS settings for SLES 12 / SLES for SAP Applications 12 -
-        KernelMMTransparentHugepage Expected: never
-        KernelMMTransparentHugepage Actual  :
-The parameters listed above have deviated from the specified SAP solution recommendations.
-
-ERROR: saptune is *NOT* fully using the solution HANA
+The system fully conforms to the tuning guidelines of the specified SAP solution.
+OK: saptune is using the solution HANA
 
 The following individual SAP notes recommendations are available via sapnote
 Consider enabling ALL of them, including 2161991 as only sets NOOP as I/O scheduler
 
 All notes (+ denotes manually enabled notes, * denotes notes enabled by solutions):
-*       1275776 Linux: Preparing SLES for SAP environments
-*       1557506 Linux paging improvements
-*       1984787 SUSE LINUX Enterprise Server 12: Installation notes
-        2161991 VMware vSphere (guest) configuration guidelines
-*       2205917 SAP HANA DB: Recommended OS settings for SLES 12 / SLES for SAP Applications 12
-        SAP_ASE SAP_Adaptive_Server_Enterprise
-        SAP_BOBJ        SAP_Business_OBJects
-+       SUSE-GUIDE-01   SLES 12 OS Tuning & Optimization Guide – Part 1
-+       SUSE-GUIDE-02   SLES 12: Network, CPU Tuning and Optimization – Part 2
+*	1275776	Linux: Preparing SLES for SAP environments
+*	1557506	Linux paging improvements
+*	1984787	SUSE LINUX Enterprise Server 12: Installation notes
++	2161991	VMware vSphere (guest) configuration guidelines
+*	2205917	SAP HANA DB: Recommended OS settings for SLES 12 / SLES for SAP Applications 12
+	SAP_ASE	SAP_Adaptive_Server_Enterprise
+	SAP_BOBJ	SAP_Business_OBJects
++	SUSE-GUIDE-01	SLES 12 OS Tuning & Optimization Guide – Part 1
++	SUSE-GUIDE-02	SLES 12: Network, CPU Tuning and Optimization – Part 2
+
+Remember: if you wish to automatically activate the solution's tuning options after a reboot,you must instruct saptune to configure "tuned" daemon by running:
+    saptune daemon start
 
 Checking sysctl settings:
 
-OK: vm.pagecache_limit_mb it is set to the recommended value of 0
+OK: net.core.rmem_max it is set to the recommended value of 56623104
 OK: net.core.somaxconn it is set to the recommended value of 4096
-OK: net.ipv4.tcp_max_syn_backlog it is set to the recommended value of 8192
+OK: net.ipv4.tcp_mem it is set to the recommended value of 56623104 56623104 56623104
 OK: net.ipv4.tcp_tw_reuse it is set to the recommended value of 1
 OK: net.ipv4.tcp_timestamps it is set to the recommended value of 1
-OK: net.ipv4.tcp_rmem it is set to the recommended value of 4096 16384 4194304
-OK: net.ipv4.tcp_wmem it is set to the recommended value of 4096 16384 4194304
+OK: net.ipv4.tcp_max_syn_backlog it is set to the recommended value of 8192
 OK: net.ipv4.tcp_slow_start_after_idle it is set to the recommended value of 0
+OK: net.ipv4.tcp_rmem it is set to the recommended value of 65536 262088 56623104
+OK: net.ipv4.tcp_wmem it is set to the recommended value of 65536 262088 56623104
+OK: net.core.wmem_max it is set to the recommended value of 56623104
 OK: net.ipv4.tcp_syn_retries it is set to the recommended value of 8
+OK: kernel.numa_balancing it is set to the recommended value of 0
 OK: net.ipv4.tcp_tw_recycle it is set to the recommended value of 1
 
 Checking packages install status:
@@ -93,10 +95,8 @@ OK: ibm-power-kvmguest-sles12 installation status is not installed
 
 The summary of this run:
 time configurations reported no deviations
-saptune reported deviations
+saptune reported no deviations
 sysctl reported no deviations
 packages reported no deviations
 IBM service and productivity tools packages reported no deviations
 ```
-
-NOTE: There is a bug on this saptune version that looks for KernelMMTransparentHugepage on Power, hence the deviation above

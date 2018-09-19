@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.5"
+HOH_VERSION = "1.6"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -146,26 +146,40 @@ def check_time():
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run timedatectl. It is a needed package for this tool\n") # Not installed or else.
 
-    #First we see if NTP is configured. Agnostic of ntpd or chronyd
+    #First we see if NTP is configured. Agnostic of ntpd or chronyd. SuSE and RedHat have different outputs!
     timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
     grep_rc_ntp = subprocess.call(['grep', 'NTP synchronized: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
     timedatectl.wait()
 
-    if grep_rc_ntp == 0:
+    if grep_rc_ntp == 0: #Is configured
         print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
-    else:
-        print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system. Please check timedatectl command")
-        print
-        errors = errors + 1
+
+    else: #Lets try for RedHat
+        timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
+        grep_rc_ntp = subprocess.call(['grep', 'NTP enabled: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        timedatectl.wait()
+
+        if grep_rc_ntp == 0: #RedHat and is on
+            print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
+        else: #None found
+            print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system. Please check timedatectl command")
+            print
+            errors = errors + 1
 
     #Lets check if sync is actually working
     timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
     grep_rc_sync = subprocess.call(['grep', 'Network time on: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
     if grep_rc_sync == 0:
-        print(GREEN + "OK: " + NOCOLOR + "Network time sync is activated in this system")
-    else:
-        print(RED + "ERROR: " + NOCOLOR + "Network time sync is not activated in this system. Please check timedatectl command")
-        errors = errors + 1
+        print(GREEN + "OK: " + NOCOLOR + "NTP sync is activated in this system")
+    else: #Lets see if is on in RedHat
+        timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
+        grep_rc_ntp = subprocess.call(['grep', 'NTP enabled: yes'], stdin=timedatectl.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        timedatectl.wait()
+        if grep_rc_ntp == 0: #RedHat and is on
+            print(GREEN + "OK: " + NOCOLOR + "NTP sync is activated in this system")
+        else: #None found
+            print(RED + "ERROR: " + NOCOLOR + "NTP sync is not activated in this system. Please check timedatectl command")
+            errors = errors + 1
     return errors
 
 def saptune_check():
