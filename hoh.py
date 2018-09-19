@@ -153,6 +153,7 @@ def check_time():
 
     if grep_rc_ntp == 0: #Is configured
         print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
+        print
 
     else: #Lets try for RedHat
         timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
@@ -161,6 +162,7 @@ def check_time():
 
         if grep_rc_ntp == 0: #RedHat and is on
             print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
+            print
         else: #None found
             print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system. Please check timedatectl command")
             print
