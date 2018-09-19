@@ -153,7 +153,6 @@ def check_time():
 
     if grep_rc_ntp == 0: #Is configured
         print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
-        print
 
     else: #Lets try for RedHat
         timedatectl = subprocess.Popen(['timedatectl', 'status'], stdout=subprocess.PIPE)
@@ -162,10 +161,8 @@ def check_time():
 
         if grep_rc_ntp == 0: #RedHat and is on
             print(GREEN + "OK: " + NOCOLOR + "NTP is configured in this system")
-            print
         else: #None found
             print(RED + "ERROR: " + NOCOLOR + "NTP is not configured in this system. Please check timedatectl command")
-            print
             errors = errors + 1
 
     #Lets check if sync is actually working
@@ -179,8 +176,10 @@ def check_time():
         timedatectl.wait()
         if grep_rc_ntp == 0: #RedHat and is on
             print(GREEN + "OK: " + NOCOLOR + "NTP sync is activated in this system")
+            print
         else: #None found
             print(RED + "ERROR: " + NOCOLOR + "NTP sync is not activated in this system. Please check timedatectl command")
+            print
             errors = errors + 1
     return errors
 
