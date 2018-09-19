@@ -328,7 +328,7 @@ def main():
     #Check linux_distribution
     linux_distribution = check_distribution()
     print (linux_distribution)
-    sys.exit("That is all for now\n"
+    sys.exit("That is all for now\n")
 
     #JSON loads
     os_dictionary = load_json("supported_OS.json")
