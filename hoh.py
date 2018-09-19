@@ -226,7 +226,7 @@ def tuned_adm_check():
         except:
             sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run tuned-adm. It is a needed package for this tool\n") # Not installed or else.
 
-        tuned_adm = subprocess.Popen(['tuned-adm', 'active', '|', 'grep', '-v', 'vmware'], stdout=subprocess.PIPE)
+        tuned_adm = subprocess.Popen(['tuned-adm', 'active'], stdout=subprocess.PIPE)
         vmware_grep = subprocess.Popen(['grep', '-v', 'vmware'], stdin=tuned_adm.stdout, stdout=subprocess.PIPE) #There is a sap-hana-vmware profile
         tuned_adm.wait()
         grep_rc_tuned = subprocess.call(['grep', 'Current active profile: sap-hana'], stdin=vmware_grep.stdout, stdout=DEVNULL, stderr=DEVNULL)
