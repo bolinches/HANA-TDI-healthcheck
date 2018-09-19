@@ -236,15 +236,16 @@ def tuned_adm_check():
             print(RED + "ERROR: " + NOCOLOR + "current active profile is not sap-hana")
             errors = errors + 1
 
-        try: #Is it fully matching?
-            return_code = subprocess.call(['tuned-adm','verify'],stdout=DEVNULL, stderr=DEVNULL)
-        except:
-            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully using the profile sap-hana")
+        #try: #Is it fully matching?
+        return_code = subprocess.call(['tuned-adm','verify'],stdout=DEVNULL, stderr=DEVNULL)
+        #except:
+        if return_code == 1:
+            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully matching the profile sap-hana")
             print
             errors = errors + 1
 
         if return_code == 0:
-            print(GREEN + "OK: " + NOCOLOR + "tuned is using the profile sap-hana")
+            print(GREEN + "OK: " + NOCOLOR + "tuned is matching the profile sap-hana")
             print
 
     return errors
