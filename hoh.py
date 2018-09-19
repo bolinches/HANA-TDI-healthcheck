@@ -80,7 +80,7 @@ def check_processor():
         print
         sys.exit(error_message)
 
-def check_os(os_dictionary):
+def check_os_suse(os_dictionary):
     #Checks the OS string vs the JSON file. If supported goes, if explecitely not supported quits. If no match also quits
     print
     print("Checking OS version")
@@ -105,6 +105,31 @@ def check_os(os_dictionary):
     except:
         print
         sys.exit(error_message)
+
+def check_os_redhat(os_dictionary):
+    #Check redhat-release vs dictionary list
+    redhat_distribution = platform.linux_distribution()
+    redhat_distribution_str = redhat_distribution[0] + " " + redhat_distribution[1]
+
+    error_message = RED + "QUIT: " + NOCOLOR + " " + redhat_distribution_str + " is not a supported OS for this tool\n"
+    try:
+        if os_dictionary[redhat_distribution_str] == 'OK':
+            print(GREEN + "OK: "+ NOCOLOR + " " + redhat_distribution_str + " is a supported OS for this tool")
+        else:
+            print
+            sys.exit(error_message)
+    except:
+        print
+        sys.exit(error_message)
+
+def check_distribution():
+    #Decide if this is a redhat or a suse
+    what_dist = platform.dist()[0]
+    if what_dist == "redhat":
+        return what_dist
+    else:#everything esle we say is suse. It gets caught later if not. Suse does not return any string for dist
+        what_dist = "suse"
+        return what_dist
 
 def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary):
     #Gets the versions of the json files into a dictionary
@@ -181,6 +206,50 @@ def check_time():
             print(RED + "ERROR: " + NOCOLOR + "NTP sync is not activated in this system. Please check timedatectl command")
             print
             errors = errors + 1
+    return errors
+
+def tuned_adm_check():
+    errors = 0
+    tuned_profiles_package = "tuned-profiles-sap-hana"
+    print
+    print("Checking if tune-adm profile is set to sap-hana")
+    print
+    profile_package_installed_rc = rpm_is_installed(tuned_profiles_package)
+    if profile_package_installed_rc == 1:
+        print (RED + "ERROR: " + NOCOLOR + tuned_profiles_package + " is not installed. ")
+        errors = errors + 1
+
+    if profile_package_installed_rc == 0: #RPM is installed lets check the if applied
+
+        try: #Can we run tune-adm?
+            return_code = subprocess.call(['tuned-adm','active'],stdout=DEVNULL, stderr=DEVNULL)
+        except:
+            sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run tuned-adm. It is a needed package for this tool\n") # Not installed or else.
+
+        tuned_adm = subprocess.Popen(['tuned-adm', 'active'], stdout=subprocess.PIPE)
+        vmware_grep = subprocess.Popen(['grep', '-v', 'vmware'], stdin=tuned_adm.stdout, stdout=subprocess.PIPE) #There is a sap-hana-vmware profile
+        tuned_adm.wait()
+        grep_rc_tuned = subprocess.call(['grep', 'Current active profile: sap-hana'], stdin=vmware_grep.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        vmware_grep.wait()
+
+        if grep_rc_tuned == 0: #sap-hana profile is active
+            print(GREEN + "OK: " + NOCOLOR + "current active profile is sap-hana")
+        else: #Some error
+            print(RED + "ERROR: " + NOCOLOR + "current active profile is not sap-hana")
+            errors = errors + 1
+
+        #try: #Is it fully matching?
+        return_code = subprocess.call(['tuned-adm','verify'],stdout=DEVNULL, stderr=DEVNULL)
+        #except:
+        if return_code == 1:
+            print(RED + "ERROR: " + NOCOLOR + "tuned profile is *NOT* fully matching the active profile")
+            print
+            errors = errors + 1
+
+        if return_code == 0:
+            print(GREEN + "OK: " + NOCOLOR + "tuned is matching the active profile")
+            print
+
     return errors
 
 def saptune_check():
@@ -291,9 +360,9 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors
         print(GREEN + "time configurations reported no deviations" + NOCOLOR)
 
     if saptune_errors > 0:
-        print(RED + "saptune reported deviations" + NOCOLOR)
+        print(RED + "saptune/tuned reported deviations" + NOCOLOR)
     else:
-        print(GREEN + "saptune reported no deviations" + NOCOLOR)
+        print(GREEN + "saptune/tuned reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
         print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
@@ -326,13 +395,30 @@ def main():
     json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary)
     show_header(HOH_VERSION,json_version)
     check_processor()
-    check_os(os_dictionary)
+
+    #Check linux_distribution
+    linux_distribution = check_distribution()
+
+    if linux_distribution == "suse":
+        check_os_suse(os_dictionary)
+    elif linux_distribution == "redhat":
+        check_os_redhat(os_dictionary)
+    else:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
+
 
     #Run
     timedatectl_errors = check_time()
-    saptune_errors = saptune_check()
+
+    if linux_distribution == "suse":
+        saptune_errors = saptune_check()
+    if linux_distribution == "redhat":
+        saptune_errors = tuned_adm_check()
+
     sysctl_warnings,sysctl_errors = sysctl_check(sysctl_dictionary)
+
     packages_errors = packages_check(packages_dictionary)
+
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
     #Exit protocol
