@@ -114,7 +114,7 @@ def check_os_redhat(os_dictionary):
     error_message = RED + "QUIT: " + NOCOLOR + " " + redhat_distribution_str + " is not a supported OS for this tool\n"
     try:
         if os_dictionary[redhat_distribution_str] == 'OK':
-        print(GREEN + "OK: "+ NOCOLOR + " " + redhat_distribution_str + " is a supported OS for this tool")
+            print(GREEN + "OK: "+ NOCOLOR + " " + redhat_distribution_str + " is a supported OS for this tool")
         else:
             print
             sys.exit(error_message)
