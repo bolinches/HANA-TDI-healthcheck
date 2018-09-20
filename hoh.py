@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.6"
+HOH_VERSION = "1.7"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -211,7 +211,6 @@ def check_time():
 def tuned_adm_check():
     errors = 0
     tuned_profiles_package = "tuned-profiles-sap-hana"
-    print
     print("Checking if tune-adm profile is set to sap-hana")
     print
     profile_package_installed_rc = rpm_is_installed(tuned_profiles_package)
@@ -255,7 +254,6 @@ def tuned_adm_check():
 def saptune_check():
     #It uses saptune command to check the solution and show the avaialble notes. Changes version to version of saptune, we are just calling saptune
     errors = 0
-    print
     print("Checking if saptune solution is set to HANA")
     print
     try:
@@ -353,33 +351,34 @@ def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors
     #End summary and say goodbye
     print
     print("The summary of this run:")
+    print
 
     if timedatectl_errors > 0:
-        print(RED + "time configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
+        print(RED + "\ttime configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
     else:
-        print(GREEN + "time configurations reported no deviations" + NOCOLOR)
+        print(GREEN + "\ttime configurations reported no deviations" + NOCOLOR)
 
     if saptune_errors > 0:
-        print(RED + "saptune/tuned reported deviations" + NOCOLOR)
+        print(RED + "\tsaptune/tuned reported deviations" + NOCOLOR)
     else:
-        print(GREEN + "saptune/tuned reported no deviations" + NOCOLOR)
+        print(GREEN + "\tsaptune/tuned reported no deviations" + NOCOLOR)
 
     if sysctl_errors > 0:
-        print(RED + "sysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
+        print(RED + "\tsysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
     elif sysctl_warnings > 0:
-        print (YELLOW + "sysctl reported " + sysctl_warnings + " warning[s]" + NOCOLOR)
+        print (YELLOW + "\tsysctl reported " + sysctl_warnings + " warning[s]" + NOCOLOR)
     else:
-        print(GREEN + "sysctl reported no deviations" + NOCOLOR)
+        print(GREEN + "\tsysctl reported no deviations" + NOCOLOR)
 
     if packages_errors > 0:
-        print(RED + "packages reported " + str(packages_errors) + " deviation[s]" + NOCOLOR)
+        print(RED + "\tpackages reported " + str(packages_errors) + " deviation[s]" + NOCOLOR)
     else:
-        print(GREEN + "packages reported no deviations" + NOCOLOR)
+        print(GREEN + "\tpackages reported no deviations" + NOCOLOR)
 
     if ibm_power_packages_errors > 0:
-        print(RED + "IBM service and productivity tools packages reported deviations" + NOCOLOR)
+        print(RED + "\tIBM service and productivity tools packages reported deviations" + NOCOLOR)
     else:
-        print(GREEN + "IBM service and productivity tools packages reported no deviations" + NOCOLOR)
+        print(GREEN + "\tIBM service and productivity tools packages reported no deviations" + NOCOLOR)
 
 def main():
     #Check parameters are passed

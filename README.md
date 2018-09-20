@@ -6,7 +6,7 @@ Main logic besides this tool:
 
 To run the tool just the get the hoh.py and the jsons (git clone or whichever way) and run it. It does not use any python module that is not installed by default so should be fine (the output is color coded cannot be seen here), To run it you need to pass one argument XFS/NFS/ESS, depending on the storage used for HANA data and logs
 ```
-Welcome to HANA OS Healthchecker (hoh) version 1.6
+Welcome to HANA OS Healthchecker (hoh) version 1.7
 
 Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about hoh.
 
@@ -18,7 +18,7 @@ JSON files versions:
         supported OS:           0.4
         sysctl:                 1.3
         packages:               0.2
-        ibm power packages:     0.2
+        ibm power packages:     0.4
 
 This software comes with absolutely no warranty of any kind. Use it at your own risk
 
