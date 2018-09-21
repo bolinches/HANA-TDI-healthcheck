@@ -1,13 +1,13 @@
 Main logic besides this tool:
-- Keep it easy to update as all input of data is via JSON files
-- Not checking stuff that is already checked elsewhere (hwcct, saptune , ...)
--
+- Keep it easy to update as all input of data is via JSON files.
+- Not checking stuff that is already checked elsewhere (hwcct, saptune , ...).
+- Currently checks: OS, NTP, sysctl, packages, IBM productivity tools.
+- Open to check other things.
 
 To use the tool, download it directly or via git with:
 
 ```
 git clone https://github.com/bolinches/HANA-TDI-healthcheck
-
 ```
 
 If you want to update to latest version via git:
