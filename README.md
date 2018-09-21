@@ -1,10 +1,33 @@
 Main logic besides this tool:
-- Keeping the JSON files updated via github with issues or other flows
-- Not checking stuff that is already check elsewhere (hwcct, saptune , ...)
-- Directions on what to check more? (TSO?, MTU, ...) Storage seems to be rather annoying as we have now 3 supported ways in production and is more than just the OS layer but the backend but I guess all can be discussed
-- Feedback in general (Python is a new thing for me so expect not great coding in there)
+- Keep it easy to update as all input of data is via JSON files
+- Not checking stuff that is already checked elsewhere (hwcct, saptune , ...)
+-
 
-To run the tool just the get the hoh.py and the jsons (git clone or whichever way) and run it. It does not use any python module that is not installed by default so should be fine (the output is color coded cannot be seen here), To run it you need to pass one argument XFS/NFS/ESS, depending on the storage used for HANA data and logs
+To use the tool, download it directly or via git with:
+
+```
+git clone https://github.com/bolinches/HANA-TDI-healthcheck
+
+```
+
+If you want to update to latest version via git:
+
+```
+cd HANA-TDI-healthcheck
+
+git pull
+```
+
+Enter the directory and run the tool with one parameter (XFS/ESS/NFS):
+
+```
+cd HANA-TDI-healthcheck
+
+./hoh.py XFS
+```
+
+At this point the tool starts
+
 ```
 Welcome to HANA OS Healthchecker (hoh) version 1.7
 
@@ -27,7 +50,7 @@ Do you want to continue? (y/n):
 
 You can the agree or disagree to run hoh
 
-As example output of a system:
+As example output of a SuSE system:
 
 ```
 Checking OS version
@@ -94,9 +117,68 @@ OK: ibm-power-kvmguest-sles12 installation status is not installed
 
 
 The summary of this run:
-time configurations reported no deviations
-saptune reported no deviations
-sysctl reported no deviations
-packages reported no deviations
-IBM service and productivity tools packages reported no deviations
+
+  time configurations reported no deviations
+  saptune reported no deviations
+  sysctl reported no deviations
+  packages reported no deviations
+  IBM service and productivity tools packages reported no deviations
 ```
+
+As example output of a RedHat system:
+```
+OK:  Red Hat Enterprise Linux Server 7.4 is a supported OS for this tool
+
+Checking NTP status with timedatectl
+
+OK: NTP is configured in this system
+OK: NTP sync is activated in this system
+
+Checking if tune-adm profile is set to sap-hana
+
+OK: current active profile is sap-hana
+OK: tuned is matching the active profile
+
+Checking sysctl settings:
+
+OK: net.core.rmem_max it is set to the recommended value of 56623104
+OK: net.core.somaxconn it is set to the recommended value of 4096
+OK: net.ipv4.tcp_mem it is set to the recommended value of 56623104 56623104 56623104
+OK: net.ipv4.tcp_tw_reuse it is set to the recommended value of 1
+OK: net.ipv4.tcp_timestamps it is set to the recommended value of 1
+OK: net.ipv4.tcp_max_syn_backlog it is set to the recommended value of 8192
+OK: net.ipv4.tcp_slow_start_after_idle it is set to the recommended value of 0
+OK: net.ipv4.tcp_rmem it is set to the recommended value of 65536 262088 56623104
+OK: net.ipv4.tcp_wmem it is set to the recommended value of 65536 262088 56623104
+OK: net.core.wmem_max it is set to the recommended value of 56623104
+OK: net.ipv4.tcp_syn_retries it is set to the recommended value of 8
+OK: kernel.numa_balancing it is set to the recommended value of 0
+OK: net.ipv4.tcp_tw_recycle it is set to the recommended value of 1
+
+Checking packages install status:
+
+OK: ipmitool installation status is as expected
+OK: powerpc-utils installation status is as expected
+OK: pseries-energy installation status is as expected
+OK: ibmPMLinux installation status is as expected
+OK: ppc64-diag installation status is as expected
+
+Checking IBM service and productivity tools packages install status:
+
+WARNING: ibm-power-nonmanaged-rhel7 installation status is *NOT* as expected. Check that at least one package is installed
+WARNING: ibm-power-nonmanaged-sles12 installation status is *NOT* as expected. Check that at least one package is installed
+OK: ibm-power-kvmguest-sles12 installation status is not installed
+OK: ibm-power-managed-rhel7 installation status is installed
+OK: ibm-power-kvmguest-rhel7 installation status is not installed
+WARNING: ibm-power-baremetal-rhel7 installation status is *NOT* as expected. Check that at least one package is installed
+WARNING: ibm-power-managed-sles12 installation status is *NOT* as expected. Check that at least one package is installed
+WARNING: ibm-power-baremetal-sles12 installation status is *NOT* as expected. Check that at least one package is installed
+
+
+The summary of this run:
+
+	time configurations reported no deviations
+	saptune/tuned reported no deviations
+	sysctl reported no deviations
+	packages reported no deviations
+	IBM service and productivity tools packages reported no deviations
