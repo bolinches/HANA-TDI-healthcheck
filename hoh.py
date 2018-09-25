@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.7"
+HOH_VERSION = "1.8"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -130,6 +130,29 @@ def check_distribution():
     else:#everything esle we say is suse. It gets caught later if not. Suse does not return any string for dist
         what_dist = "suse"
         return what_dist
+
+def check_selinux():
+    #Check sestatus is disabled
+    errors = 0
+    print
+    print("Checking SELinux status with sestatus")
+    print
+    try:
+        return_code = subprocess.call(['sestatus'],stdout=DEVNULL, stderr=DEVNULL)
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run sestatus. It is a needed package for this tool\n") # Not installed or else.
+
+    sestatus = subprocess.Popen(['sestatus'], stdout=subprocess.PIPE)
+    grep_rc_ntp = subprocess.call(['grep', 'disabled'], stdin=sestatus.stdout, stdout=DEVNULL, stderr=DEVNULL)
+    sestatus.wait()
+
+    if grep_rc_ntp == 0: #Is configured
+        print(GREEN + "OK: " + NOCOLOR + "SELinux is disabled in this system")
+    else: #None found
+        print(RED + "ERROR: " + NOCOLOR + "SELinux is not disabled in this system")
+        errors = errors + 1
+
+    return errors
 
 def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary):
     #Gets the versions of the json files into a dictionary
@@ -347,11 +370,16 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
-def print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
     print("The summary of this run:")
     print
+
+    if selinux_errors > 0:
+        print(RED + "\tSELinux reported deviations" + NOCOLOR)
+    else:
+        print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
 
     if timedatectl_errors > 0:
         print(RED + "\ttime configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
@@ -407,6 +435,11 @@ def main():
 
 
     #Run
+    if linux_distribution == "redhat": #This has being checked already so it is a "good" variable
+        selinux_errors = check_selinux()
+    else:
+        selinux_errors = 0
+
     timedatectl_errors = check_time()
 
     if linux_distribution == "suse":
@@ -422,7 +455,7 @@ def main():
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
     print
     print
 
