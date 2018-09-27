@@ -29,7 +29,7 @@ cd HANA-TDI-healthcheck
 At this point the tool starts
 
 ```
-Welcome to HANA OS Healthchecker (hoh) version 1.7
+Welcome to HANA OS Healthchecker (hoh) version 1.8
 
 Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about hoh.
 
@@ -118,6 +118,7 @@ OK: ibm-power-kvmguest-sles12 installation status is not installed
 
 The summary of this run:
 
+  SELinux reported no deviations
   time configurations reported no deviations
   saptune reported no deviations
   sysctl reported no deviations
@@ -126,8 +127,13 @@ The summary of this run:
 ```
 
 As example output of a RedHat system:
+
 ```
 OK:  Red Hat Enterprise Linux Server 7.4 is a supported OS for this tool
+
+Checking SELinux status with sestatus
+
+OK: SELinux is disabled in this system
 
 Checking NTP status with timedatectl
 
@@ -177,8 +183,10 @@ WARNING: ibm-power-baremetal-sles12 installation status is *NOT* as expected. Ch
 
 The summary of this run:
 
+	SELinux reported no deviations
 	time configurations reported no deviations
 	saptune/tuned reported no deviations
 	sysctl reported no deviations
 	packages reported no deviations
 	IBM service and productivity tools packages reported no deviations
+```
