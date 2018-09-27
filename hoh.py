@@ -421,12 +421,6 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 
     return mp_errors
 
-attrs = {}
-for value in values:
-  attrs[value["key"]] = value["value"]
-
->>> attrs
-{'name': 'Mark', 'age': 34}
 
 def load_multipath(multipath_file):
     #Load multipath file
