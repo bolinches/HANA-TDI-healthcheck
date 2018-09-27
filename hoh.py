@@ -433,37 +433,34 @@ def load_multipath(multipath_file):
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read multipath file "+ multipath_file +" \n")
 
-def config_parser(config_lines):
-    config_dictionary = []
+def config_parser(conf_lines):
+    config = []
 
     # iterate on config lines
-    for line in config_lines:
+    for line in conf_lines:
         #Get rid of inline comments
         line = line.split('#')[0]
-        # Get rid of spaces
-        line = line.replace(" ", "")
-        #Get rid \n
-        line = line.strip('\n')
-        #Get rid of "
+        # remove left and right spaces
+        line = line.strip()
         line = line.translate(None, '"')
 
         if line.startswith('#'):
             # skip comment lines
             continue
         elif line.endswith('{'):
-            # New entry to lets call again
-            config_dictionary.append({line.split()[0]: config_parser(config_lines)})
+            # new dict (notice the recursion here)
+            config.append({line.split()[0]: config_parser(conf_lines)})
         else:
-            # Within one dictionary
+            # inside a dict
             if line.endswith('}'):
-                # We ended the current dictionary
+                # end of current dict
                 break
             else:
-                # We found a goodie
-                line = line.split(' ')
+                # parameter line
+                line = line.split()
                 if len(line) > 1:
-                    config_dictionary.append({line[0]: " ".join(line[1:])})
-    return config_dictionary
+                    config.append({line[0]: " ".join(line[1:])})
+    return config
 
 def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
