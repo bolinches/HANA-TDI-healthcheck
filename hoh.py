@@ -61,7 +61,7 @@ def show_header(hoh_version,json_version):
         print("\tsysctl: \t\t" + json_version['sysctl'])
         print("\tpackages: \t\t" + json_version['packages'])
         print("\tibm power packages:\t" + json_version['ibm_power_packages'])
-        print("\t2145 multipath:\t") + json_version['svc_multipath']
+        print("\tStorwize multipath:\t") + json_version['svc_multipath']
         print
         print(RED + "This software comes with absolutely no warranty of any kind. Use it at your own risk" + NOCOLOR)
         print
