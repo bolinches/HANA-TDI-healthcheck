@@ -379,23 +379,26 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
 
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 
+    mp_errors = 0
     for mp_value in svc_multipath_dictionary.keys():
-        if mp_value != "json_version":
-            recommended_value_str = str(mp_conf_dictionary[mp_value])
-            #recommended_value = int(recommended_value_str.replace(" ", "")) #Need to clean the entries that have spaces or tabs for integer comparision
-            #Lets start with defaults
-            print
-            print("Checking defaults section of multipath config file")
-            try:
-                current_value_str = mp_conf_dictionary['defaults'][mp_value]
-                if current_value_str == '':
-                    print (mp_value + "not found on defaults")
-                elif current_value_str == current_value_str:
-                    print(GREEN + "OK: " + NOCOLOR + mp_value + " it is set to the recommended value of " + recommended_value_str)
-            except:
-                print(YELLOW + "WARNING: " + NOCOLOR + mp_value + " Not found on this section")
-
-    return 0
+        #We go to check each entry on the JSON to both defaults and devices
+        #We assume only defaults or devices contains the configuration for multipath
+        #Lets look at defaults first if what we look is not there or worng value mark errors
+        #If does not exist we move to look into devices 2145
+        for item in mp_conf_dictionary:
+            if 'defaults' in item:
+                for value in item['defaults']:
+                    if mp_value in value: #We found the value!
+                        recommended_value = svc_multipath_dictionary[mp_value]
+                        current_value = value[mp_value]
+                        if recommended_value == current_value:
+                            print(GREEN + "OK: " + NOCOLOR + mp_value + " has the recommended value of " str(recommended_value))
+                        else:
+                            print (RED + "ERROR: " + NOCOLOR + sysctl + " is " + current_value_str + " and should be " + recommended_value_str)
+                            mp_errors = mp_errors + 1
+                    else:
+                        print(YELLOW + "WARNING: " + NOCOLOR + mp_value + " not found in defaults")
+    return mp_errors
 
 def load_multipath(multipath_file):
     #Load multipath file
