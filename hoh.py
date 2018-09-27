@@ -379,6 +379,22 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
 
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 
+    for mp_value in svc_multipath_dictionary.keys():
+        if mp_value != "json_version":
+            recommended_value_str = str(mp_conf_dictionary[mp_value])
+            #recommended_value = int(recommended_value_str.replace(" ", "")) #Need to clean the entries that have spaces or tabs for integer comparision
+            #Lets start with defaults
+            print
+            print("Checking defaults section of multipath config file")
+            try:
+                current_value_str = mp_conf_dictionary['defaults'][mp_value]
+                if current_value_str == '':
+                    print (mp_value + "not found on defaults")
+                elif current_value_str == current_value_str:
+                    print(GREEN + "OK: " + NOCOLOR + mp_value + " it is set to the recommended value of " + recommended_value_str)
+            except:
+                print(YELLOW + "WARNING: " + NOCOLOR + mp_value + " Not found on this section")
+
     return 0
 
 def load_multipath(multipath_file):
