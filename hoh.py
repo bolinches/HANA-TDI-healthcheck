@@ -442,6 +442,8 @@ def config_parser(config_lines):
         line = line.split('#')[0]
         # Get rid of end spaces
         line = line.strip(' ')
+        #Get rid of right spaces
+        line.rstrip(' ')
         #Get rid \n
         line = line.strip('\n')
         #Get rid of "
