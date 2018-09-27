@@ -392,7 +392,7 @@ def config_parser(config_lines):
     config_dictionary = []
 
     # iterate on config lines
-    for line in conf_lines:
+    for line in config_lines:
         #Get rid of inline comments
         line = line.split('#')[0]
         # Get rid of end spaces
@@ -483,6 +483,10 @@ def main():
     else:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
 
+    #Check multipath
+    if storage == 'XFS':
+        load_multipath("/etc/multipath.conf")
+        print("multipath loaded!")
 
     #Run
     if linux_distribution == "redhat": #This has being checked already so it is a "good" variable
