@@ -440,10 +440,8 @@ def config_parser(config_lines):
     for line in config_lines:
         #Get rid of inline comments
         line = line.split('#')[0]
-        # Get rid of end spaces
-        line = line.strip(' ')
-        #Get rid of right spaces
-        line.rstrip(' ')
+        # Get rid of spaces
+        line = line.replace(" ", "")
         #Get rid \n
         line = line.strip('\n')
         #Get rid of "
