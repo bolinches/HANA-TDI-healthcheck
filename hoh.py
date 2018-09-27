@@ -380,24 +380,17 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 
     mp_errors = 0
-    #for mp_attr in svc_multipath_dictionary.keys():
-    #    mp_value = svc_multipath_dictionary[mp_attr]
+    for mp_attr in svc_multipath_dictionary.keys():
+        mp_value = svc_multipath_dictionary[mp_attr]
         #We go to check each entry on the JSON to both defaults and devices
         #We assume only defaults or devices contains the configuration for multipath
         #Lets look at defaults first if what we look is not there or worng value mark errors
         #If does not exist we move to look into devices 2145
-    #    if mp_attr == 'json_version': #Ignore JSON version
-    #        continue
+        if mp_attr == 'json_version': #Ignore JSON version
+            continue
 
-
-
-    with open('/etc/multipath.conf','r') as config_file:
-        config = config_parser(config_file)
-        print(config)
-
-        #Show defaults
         print("Default settings: ")
-        for item in config:
+        for item in mp_conf_dictionary:
             if 'defaults' in item:
                 for default in item['defaults']:
                     if 'fast_io_fail_tmo' in default:
