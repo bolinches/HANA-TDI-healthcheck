@@ -393,9 +393,12 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
             if 'defaults' in item:
                 for default in item['defaults']:
                     if mp_attr in default:
-                        print default
                         current_value = default[mp_attr]
-                        print (current_value)
+                        if current_value == mp_value:
+                            print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
+                        else:
+                            print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(recommended_value))
+                            mp_errors = mp_errors + 1
 
         #if mp_attr == 'fast_io_fail_tmo':
         #    print ("Found " + mp_attr + " in JSON. Lets see if it is equal to " + mp_value)
