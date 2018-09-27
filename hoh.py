@@ -392,7 +392,7 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
                         recommended_value = svc_multipath_dictionary[mp_value]
                         current_value = value[mp_value]
                         if recommended_value == current_value:
-                            print(GREEN + "OK: " + NOCOLOR + mp_value + " has the recommended value of " str(recommended_value))
+                            print(GREEN + "OK: " + NOCOLOR + mp_value + " has the recommended value of " + str(recommended_value))
                         else:
                             print (RED + "ERROR: " + NOCOLOR + sysctl + " is " + current_value_str + " and should be " + recommended_value_str)
                             mp_errors = mp_errors + 1
