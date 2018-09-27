@@ -377,9 +377,16 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
-def check_multipath(multipath_file):
-    #We check multipath file vs JSON definition
-    return 0
+def load_multipath(multipath_file):
+    #Load multipath file
+    print("Loading multipath file")
+    print
+    try:
+        with open(multipath_file), 'r') as mp_file:
+            mp_dictionary = config_parser(mp_file)
+            return mp_dictionary
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read multipath file "+ multipath_file +" \n") 
 
 def config_parser(config_lines):
     config_dictionary = []
