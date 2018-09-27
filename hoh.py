@@ -397,7 +397,7 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
                         if current_value == mp_value:
                             print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
                         else:
-                            print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(recommended_value))
+                            print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(mp_value))
                             mp_errors = mp_errors + 1
 
         #if mp_attr == 'fast_io_fail_tmo':
