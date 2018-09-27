@@ -389,13 +389,13 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
         if mp_attr == 'json_version': #Ignore JSON version
             continue
 
-        print("Default settings: ")
         for item in mp_conf_dictionary:
             if 'defaults' in item:
                 for default in item['defaults']:
-                    if 'fast_io_fail_tmo' in default:
+                    if mp_attr in default:
                         print default
-                        print default['fast_io_fail_tmo']
+                        current_value = default[mp_attr]
+                        print (current_value)
 
         #if mp_attr == 'fast_io_fail_tmo':
         #    print ("Found " + mp_attr + " in JSON. Lets see if it is equal to " + mp_value)
