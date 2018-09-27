@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.8"
+HOH_VERSION = "1.9"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -61,6 +61,7 @@ def show_header(hoh_version,json_version):
         print("\tsysctl: \t\t" + json_version['sysctl'])
         print("\tpackages: \t\t" + json_version['packages'])
         print("\tibm power packages:\t" + json_version['ibm_power_packages'])
+        print("\t2145 multipath:\t") + json_version['svc_multipath']
         print
         print(RED + "This software comes with absolutely no warranty of any kind. Use it at your own risk" + NOCOLOR)
         print
@@ -154,7 +155,7 @@ def check_selinux():
 
     return errors
 
-def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary):
+def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary,svc_multipath_dictionary):
     #Gets the versions of the json files into a dictionary
     json_version = {}
 
@@ -178,6 +179,12 @@ def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_po
         json_version['ibm_power_packages'] = ibm_power_packages_dictionary['json_version']
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "Cannot load version from IBM Power packages JSON")
+
+    try:
+        json_version['svc_multipath'] = svc_multipath_dictionary['json_version']
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "Cannot load version from IBM 2145 mulitpath JSON")
+
 
     #If we made it this far lets return the dictionary. This was being stored in its own file before
     return json_version
@@ -370,6 +377,12 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
+def check_multipath(multipath_file):
+    #We check multipath file vs JSON definition
+    return 0
+
+
+
 def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
@@ -417,9 +430,10 @@ def main():
     sysctl_dictionary = load_json(storage + "_sysctl.json")
     packages_dictionary = load_json("packages.json")
     ibm_power_packages_dictionary = load_json("ibm_power_packages.json")
+    svc_multipath_dictionary = load_json("2145_multipath.json")
 
     #Initial header and checks
-    json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary)
+    json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary,svc_multipath_dictionary)
     show_header(HOH_VERSION,json_version)
     check_processor()
 
