@@ -48,19 +48,19 @@ def show_header(hoh_version,json_version):
     #Say hello and give chance to disagree to the no warranty of any kind
     while True:
         print
-        print(GREEN + "Welcome to HANA OS Healthchecker (hoh) version " + hoh_version + NOCOLOR)
+        print(GREEN + "Welcome to HANA OS Healthchecker (HOH) version " + hoh_version + NOCOLOR)
         print
-        print("Please use " + GITHUB_URL + " to get latest versions and report issues about hoh.")
+        print("Please use " + GITHUB_URL + " to get latest versions and report issues about HOH.")
         print
         print("The purpose of hoh is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
         print
         print("You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note")
         print
         print("JSON files versions:")
-        print("\tSupported OS:\t\t\t" + json_version['supported_OS'])
-        print("\tsysctl: \t\t\t" + json_version['sysctl'])
-        print("\tPackages: \t\t\t" + json_version['packages'])
-        print("\tIBM Power packages:\t\t" + json_version['ibm_power_packages'])
+        print("\tSupported OS:\t\t\t\t" + json_version['supported_OS'])
+        print("\tsysctl: \t\t\t\t" + json_version['sysctl'])
+        print("\tPackages: \t\t\t\t" + json_version['packages'])
+        print("\tIBM Power packages:\t\t\t" + json_version['ibm_power_packages'])
         print("\tIBM Spectrum Virtualize multipath:\t") + json_version['svc_multipath']
         print
         print(RED + "This software comes with absolutely no warranty of any kind. Use it at your own risk" + NOCOLOR)
