@@ -382,11 +382,11 @@ def load_multipath(multipath_file):
     print("Loading multipath file")
     print
     try:
-        with open(multipath_file), 'r') as mp_file:
+        with open(multipath_file, 'r') as mp_file:
             mp_dictionary = config_parser(mp_file)
             return mp_dictionary
     except:
-        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read multipath file "+ multipath_file +" \n") 
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read multipath file "+ multipath_file +" \n")
 
 def config_parser(config_lines):
     config_dictionary = []
