@@ -377,6 +377,10 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
+def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
+
+    return 0
+
 def load_multipath(multipath_file):
     #Load multipath file
     print("Loading multipath file")
@@ -417,7 +421,6 @@ def config_parser(config_lines):
                 if len(line) > 1:
                     config_dictionary.append({line[0]: " ".join(line[1:])})
     return config_dictionary
-
 
 def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
@@ -485,8 +488,8 @@ def main():
 
     #Check multipath
     if storage == 'XFS':
-        load_multipath("/etc/multipath.conf")
-        print("multipath loaded!")
+        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
 
     #Run
     if linux_distribution == "redhat": #This has being checked already so it is a "good" variable
