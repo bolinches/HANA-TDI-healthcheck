@@ -380,42 +380,53 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 
     mp_errors = 0
-    for mp_attr in svc_multipath_dictionary.keys():
-        mp_value = svc_multipath_dictionary[mp_attr]
+    #for mp_attr in svc_multipath_dictionary.keys():
+    #    mp_value = svc_multipath_dictionary[mp_attr]
         #We go to check each entry on the JSON to both defaults and devices
         #We assume only defaults or devices contains the configuration for multipath
         #Lets look at defaults first if what we look is not there or worng value mark errors
         #If does not exist we move to look into devices 2145
-        if mp_attr == 'json_version': #Ignore JSON version
-            continue
+    #    if mp_attr == 'json_version': #Ignore JSON version
+    #        continue
 
-        if mp_attr == 'fast_io_fail_tmo':
-            for item in mp_conf_dictionary:
-                if default in item['defaults']:
-                    if mp_attr in default:
-                        print (GREEN + "OK: " + NOCOLOR + mp_attr + "found in defaults")
-                        current_value = default['mp_attr']
-                        if current_value == mp_value:
-                            print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
-                        else:
-                            print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(recommended_value)
-                    else:
-                    print(YELLOW + "WARNING: " + NOCOLOR + mp_attr + " not found in defaults")
-        #for item in mp_conf_dictionary:
-        #    if 'defaults' in item:
-        #        for value in item['defaults']:
-        #            recommended_value = svc_multipath_dictionary[mp_value]
-        #            print (str(recommended_value))
-        #            current_value = value[mp_value]
-        #            print(str(current_value))
-        #            if recommended_value == current_value:
-        #                print(GREEN + "OK: " + NOCOLOR + mp_value + " has the recommended value of " + str(recommended_value))
-        #            else:
-        #                print (RED + "ERROR: " + NOCOLOR + mp_value + " is " + str(current_value) + " and should be " + str(recommended_value)
-        #                mp_errors = mp_errors + 1
-        #    else:
-        #            print(YELLOW + "WARNING: " + NOCOLOR + mp_value + " not found in defaults")
+
+
+    with open('/etc/multipath.conf','r') as config_file:
+        config = config_parser(config_file)
+        print(config)
+
+        #Show defaults
+        print("Default settings: ")
+        for item in config:
+            if 'defaults' in item:
+                for default in item['defaults']:
+                    if 'fast_io_fail_tmo' in default:
+                        print default
+                        print default['fast_io_fail_tmo']
+
+        #if mp_attr == 'fast_io_fail_tmo':
+        #    print ("Found " + mp_attr + " in JSON. Lets see if it is equal to " + mp_value)
+        #    for item in mp_conf_dictionary:
+        #        if 'defaults' in item:
+        #            for default in item['defaults']:
+        #                print default[mp_attr]
+        #                if mp_attr in default:
+        #                    current_value = default[mp_attr]
+        #                    print (current_value)
+        #                    if current_value == mp_value:
+        #                        print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
+        #                    else:
+        #                        print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(recommended_value))
+        #                        mp_errors = mp_errors + 1
+
     return mp_errors
+
+attrs = {}
+for value in values:
+  attrs[value["key"]] = value["value"]
+
+>>> attrs
+{'name': 'Mark', 'age': 34}
 
 def load_multipath(multipath_file):
     #Load multipath file
@@ -437,6 +448,8 @@ def config_parser(config_lines):
         line = line.split('#')[0]
         # Get rid of end spaces
         line = line.strip(' ')
+        #Get rid \n
+        line = line.strip('\n')
         #Get rid of "
         line = line.translate(None, '"')
 
