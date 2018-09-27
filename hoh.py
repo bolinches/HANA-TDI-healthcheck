@@ -381,6 +381,35 @@ def check_multipath(multipath_file):
     #We check multipath file vs JSON definition
     return 0
 
+def config_parser(config_lines):
+    config_dictionary = []
+
+    # iterate on config lines
+    for line in conf_lines:
+        #Get rid of inline comments
+        line = line.split('#')[0]
+        # Get rid of end spaces
+        line = line.strip(' ')
+        #Get rid of "
+        line = line.translate(None, '"')
+
+        if line.startswith('#'):
+            # skip comment lines
+            continue
+        elif line.endswith('{'):
+            # New entry to lets call again
+            config_dictionary.append({line.split()[0]: config_parser(config_lines)})
+        else:
+            # Within one dictionary
+            if line.endswith('}'):
+                # We ended the current dictionary
+                break
+            else:
+                # We found a goodie
+                line = line.split(' ')
+                if len(line) > 1:
+                    config_dictionary.append({line[0]: " ".join(line[1:])})
+    return config_dictionary
 
 
 def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
