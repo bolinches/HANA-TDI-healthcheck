@@ -465,19 +465,20 @@ def detect_disk_type(disk_type):
     #Will do a simple check on /proc/scsi/sg/device_strs for disk_type > 0
     try:
         cat_scsi_sg = subprocess.Popen(['cat', '/proc/scsi/sg/device_strs'], stdout=subprocess.PIPE, stderr=DEVNULL)
-        grep_rc_ntp = subprocess.call(['grep', '2145'], stdin=cat_scsi_sg.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
+        grep_disk_type = subprocess.Popen(['grep', disk_type], stdin=cat_scsi_sg.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
         cat_scsi_sg.wait()
+        wc_proc = subprocess.Popen(['wc', '-l'], stdin=grep_disk_type.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
+        grep_disk_type.wait()
 
-        number_of_disk_type = subprocess.call(['wc', '-l'], stdin=grep_rc_ntp.stdout, stdout=DEVNULL, stderr=DEVNULL)
-        grep_rc_ntp.wait()
+        number_of_disk_type = wc_proc.stdout.read()
+        wc_proc.wait()
 
-        if number_of_disk_type > 0:
+        if int(number_of_disk_type) > 0:
             return 1
         else:
             return 0
     except:
             sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read proc/scsi/sg/device_strs\n")
-
 
 def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath):
     #End summary and say goodbye
@@ -571,9 +572,14 @@ def main():
 
     #Check multipath
     if with_multipath == 1 and storage == 'XFS':
-        print (YELLOW + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
-        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
-        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+        print (RED + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
+        #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+        #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+        is_2145 = detect_disk_type("2145")
+        if is_2145 == 1:
+            print("2145 detected")
+        elif is_2145 == 0:
+            print("this is not 2145")
 
     #Exit protocol
     DEVNULL.close()
