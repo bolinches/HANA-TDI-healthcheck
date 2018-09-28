@@ -461,16 +461,20 @@ def config_parser(conf_lines):
                     config.append({line[0]: " ".join(line[1:])})
     return config
 
-def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
     print("The summary of this run:")
     print
 
-    if selinux_errors > 0:
-        print(RED + "\tSELinux reported deviations" + NOCOLOR)
-    else:
-        print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
+    if linux_distribution = "redhat":
+        if selinux_errors > 0:
+            print(RED + "\tSELinux reported deviations" + NOCOLOR)
+        else:
+            print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
+
+    if linux_distribution = "suse":
+        print(GREEN + "\tSELinux not tested" + NOCOLOR)
 
     if timedatectl_errors > 0:
         print(RED + "\ttime configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
@@ -525,11 +529,6 @@ def main():
     else:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
 
-    #Check multipath
-    if with_multipath == 1 and storage == 'XFS':
-        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
-        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
-
     #Run
     if linux_distribution == "redhat": #This has being checked already so it is a "good" variable
         selinux_errors = check_selinux()
@@ -549,9 +548,14 @@ def main():
 
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
+    #Check multipath
+    if with_multipath == 1 and storage == 'XFS':
+        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+
     #Exit protocol
     DEVNULL.close()
-    print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
     print
     print
 
