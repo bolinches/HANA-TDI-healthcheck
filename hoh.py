@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.10"
+HOH_VERSION = "1.11"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -461,7 +461,7 @@ def config_parser(conf_lines):
                     config.append({line[0]: " ".join(line[1:])})
     return config
 
-def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath):
     #End summary and say goodbye
     print
     print("The summary of this run:")
@@ -502,6 +502,9 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
         print(RED + "\tIBM service and productivity tools packages reported deviations" + NOCOLOR)
     else:
         print(GREEN + "\tIBM service and productivity tools packages reported no deviations" + NOCOLOR)
+
+    if with_multipath = 1:
+        print(YELLOW + "\tmultipath option was called. Please refer to storage vendor documentation for recommended settings" + NOCOLOR)
 
 def main():
     #Check parameters are passed
@@ -556,7 +559,7 @@ def main():
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath)
     print
     print
 
