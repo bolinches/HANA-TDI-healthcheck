@@ -467,13 +467,13 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
     print("The summary of this run:")
     print
 
-    if linux_distribution = "redhat":
+    if linux_distribution == "redhat":
         if selinux_errors > 0:
             print(RED + "\tSELinux reported deviations" + NOCOLOR)
         else:
             print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
 
-    if linux_distribution = "suse":
+    if linux_distribution == "suse":
         print(GREEN + "\tSELinux not tested" + NOCOLOR)
 
     if timedatectl_errors > 0:
