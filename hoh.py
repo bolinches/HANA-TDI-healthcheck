@@ -576,10 +576,14 @@ def main():
         #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
         #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
         is_2145 = detect_disk_type("2145")
-        if is_2145 == 1:
-            print("2145 detected")
-        elif is_2145 == 0:
-            print("this is not 2145")
+        if is_2145 == 1: #If this is 2145 lets check if there is a multipath.cpnf file
+            print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
+            if os.path.isfile('/etc/multipath.conf') == True:
+                print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
+            else:
+                print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
+        elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
+            print(YELLOW + "WARNING: " + NOCOLOR " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
 
     #Exit protocol
     DEVNULL.close()
