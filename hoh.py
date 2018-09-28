@@ -378,7 +378,7 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     return(errors)
 
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
-
+    #Missing warnings and header
     mp_errors = 0
     for mp_attr in svc_multipath_dictionary.keys():
         mp_value = svc_multipath_dictionary[mp_attr]
@@ -389,33 +389,27 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
         if mp_attr == 'json_version': #Ignore JSON version
             continue
 
+
         for item in mp_conf_dictionary:
+            is_found = 0
             if 'defaults' in item:
                 for default in item['defaults']:
                     if mp_attr in default:
+                        is_found = 1
                         current_value = default[mp_attr]
                         if current_value == mp_value:
                             print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
                         else:
                             print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(mp_value))
                             mp_errors = mp_errors + 1
-
-        #if mp_attr == 'fast_io_fail_tmo':
-        #    print ("Found " + mp_attr + " in JSON. Lets see if it is equal to " + mp_value)
-        #    for item in mp_conf_dictionary:
-        #        if 'defaults' in item:
-        #            for default in item['defaults']:
-        #                print default[mp_attr]
-        #                if mp_attr in default:
-        #                    current_value = default[mp_attr]
-        #                    print (current_value)
-        #                    if current_value == mp_value:
-        #                        print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
-        #                    else:
-        #                        print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(recommended_value))
-        #                        mp_errors = mp_errors + 1
-
-    return mp_errors
+            if 'devices' in item:
+                for devices in item['devices']:
+                    if 'device' in devices:
+                        for device in devices:
+                            if device['vendor'] != "IBM" or device['product'] != "2145":
+                                print(YELLOW + "WARNING: " + NOCOLOR +  + " Non IBM storage detected. Please refer to storage vendor documentation")
+                                no_ibm_storage = 1
+    return no_ibm_storage,mp_errors
 
 
 def load_multipath(multipath_file):
