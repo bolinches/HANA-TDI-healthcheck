@@ -424,7 +424,6 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
 def load_multipath(multipath_file):
     #Load multipath file
     print("Loading multipath file")
-    print
     try:
         with open(multipath_file, 'r') as mp_file:
             mp_dictionary = config_parser(mp_file)
@@ -550,6 +549,7 @@ def main():
 
     #Check multipath
     if with_multipath == 1 and storage == 'XFS':
+        print (YELLOW + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
         mp_conf_dictionary = load_multipath("/etc/multipath.conf")
         multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
 
