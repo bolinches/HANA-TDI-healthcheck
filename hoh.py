@@ -461,6 +461,18 @@ def config_parser(conf_lines):
                     config.append({line[0]: " ".join(line[1:])})
     return config
 
+def print_important_multipath_values(svc_multipath_dictionary):
+    #We show the JSON values that have to be in the configuration
+    print
+    print ("Be sure to check that your current multipath.conf has the following attributes set to the recommended values:")
+    print
+    for mp_attr in svc_multipath_dictionary.keys():
+        if mp_attr != "json_version":
+            mp_value = str(svc_multipath_dictionary[mp_attr])
+            print(mp_attr + "\t  --->\t" + mp_value)
+        print
+
+
 def detect_disk_type(disk_type):
     #Will do a simple check on /proc/scsi/sg/device_strs for disk_type > 0
     try:
@@ -580,10 +592,11 @@ def main():
             print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
             if os.path.isfile('/etc/multipath.conf') == True:
                 print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
+                print_important_multipath_values(svc_multipath_dictionary)
             else:
                 print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
-        elif: is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
-            print(YELLOW + "WARNING: " + NOCOLOR " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
+        elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
+            print(YELLOW + "WARNING: " + NOCOLOR + " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
 
     #Exit protocol
     DEVNULL.close()
