@@ -65,7 +65,7 @@ def show_header(hoh_version,json_version):
         print
         print("Please use " + GITHUB_URL + " to get latest versions and report issues about HOH.")
         print
-        print("The purpose of hoh is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
+        print("The purpose of HOH is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
         print
         print("You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note")
         print
