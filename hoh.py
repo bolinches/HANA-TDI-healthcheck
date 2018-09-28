@@ -38,8 +38,18 @@ def check_parameters():
         print
         sys.exit(error_message)
 
+    #Optional --with-multipath argument
+    try: #in case no argument is passed
+        argument2=sys.argv[2]
+        if argument2 == '--with-multipath':
+            with_multipath = 1
+        else:
+            with_multipath = 0
+    except:
+        with_multipath = 0
+
     if argument1.upper() in ('XFS', 'NFS', 'ESS'): #To check is a wanted argument
-        return argument1.upper()
+        return argument1.upper(),with_multipath
     else:
         print
         sys.exit(error_message)
@@ -402,14 +412,13 @@ def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
                         else:
                             print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(mp_value))
                             mp_errors = mp_errors + 1
-            if 'devices' in item:
-                for devices in item['devices']:
-                    if 'device' in devices:
-                        for device in devices:
-                            if device['vendor'] != "IBM" or device['product'] != "2145":
-                                print(YELLOW + "WARNING: " + NOCOLOR +  + " Non IBM storage detected. Please refer to storage vendor documentation")
-                                no_ibm_storage = 1
-    return no_ibm_storage,mp_errors
+            #if 'devices' in item:
+            #    for devices in item['devices']:
+            #        if 'device' in devices:
+            #            for device in devices:
+            #                if device['vendor'] != "IBM" or device['product'] != "2145":
+            ##                    no_ibm_storage = 1
+    return mp_errors
 
 
 def load_multipath(multipath_file):
@@ -492,7 +501,7 @@ def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warning
 
 def main():
     #Check parameters are passed
-    storage = check_parameters()
+    storage,with_multipath = check_parameters()
 
     #JSON loads
     os_dictionary = load_json("supported_OS.json")
@@ -517,7 +526,7 @@ def main():
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
 
     #Check multipath
-    if storage == 'XFS':
+    if with_multipath == 1 and storage == 'XFS':
         mp_conf_dictionary = load_multipath("/etc/multipath.conf")
         multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
 
