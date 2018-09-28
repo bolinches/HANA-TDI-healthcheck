@@ -464,13 +464,13 @@ def config_parser(conf_lines):
 def print_important_multipath_values(svc_multipath_dictionary):
     #We show the JSON values that have to be in the configuration
     print
-    print ("Be sure to check that your current multipath.conf has the following attributes set to the recommended values:")
+    print (YELLOW + "Be sure to check that your current multipath.conf has the following attributes set to the recommended values:" + NOCOLOR)
     print
     for mp_attr in svc_multipath_dictionary.keys():
         if mp_attr != "json_version":
             mp_value = str(svc_multipath_dictionary[mp_attr])
-            print(mp_attr + "\t  --->\t" + mp_value)
-        print
+            print("\t" + mp_attr + "\t  --->\t" + mp_value)
+    print
 
 
 def detect_disk_type(disk_type):
