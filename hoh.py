@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.11"
+HOH_VERSION = "1.12"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -460,6 +460,24 @@ def config_parser(conf_lines):
                 if len(line) > 1:
                     config.append({line[0]: " ".join(line[1:])})
     return config
+
+def detect_disk_type(disk_type):
+    #Will do a simple check on /proc/scsi/sg/device_strs for disk_type > 0
+    try:
+        cat_scsi_sg = subprocess.Popen(['cat', '/proc/scsi/sg/device_strs'], stdout=subprocess.PIPE, stderr=DEVNULL)
+        grep_rc_ntp = subprocess.call(['grep', '2145'], stdin=cat_scsi_sg.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
+        cat_scsi_sg.wait()
+
+        number_of_disk_type = subprocess.call(['wc', '-l'], stdin=grep_rc_ntp.stdout, stdout=DEVNULL, stderr=DEVNULL)
+        grep_rc_ntp.wait()
+
+        if number_of_disk_type > 0:
+            return 1
+        else:
+            return 0
+    except:
+            sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read proc/scsi/sg/device_strs\n")
+
 
 def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath):
     #End summary and say goodbye
