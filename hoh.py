@@ -474,7 +474,7 @@ def print_important_multipath_values(svc_multipath_dictionary):
             mp_value = str(svc_multipath_dictionary[mp_attr])
             print("\t" + mp_attr + "\t  --->\t" + mp_value)
     print
-    print ("For a multipath.conf example for IBM Spectrum Virtualize storage storage (2145) and HANA please check Appendix B of " + REDBOOK_URL)
+    print ("For a multipath.conf example for IBM Spectrum Virtualize storage (2145) with HANA please check Appendix B of " + REDBOOK_URL)
     print
 
 
