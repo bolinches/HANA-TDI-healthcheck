@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.9"
+HOH_VERSION = "1.10"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -77,6 +77,7 @@ def show_header(hoh_version,json_version):
         print
         run_this = raw_input("Do you want to continue? (y/n): ")
         if run_this.lower() == 'y':
+            print
             break
         if run_this.lower() == 'n':
             print
