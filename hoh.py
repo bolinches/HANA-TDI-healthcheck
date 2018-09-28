@@ -582,7 +582,7 @@ def main():
                 print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
             else:
                 print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
-        elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
+        elif: is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
             print(YELLOW + "WARNING: " + NOCOLOR " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
 
     #Exit protocol
