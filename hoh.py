@@ -14,11 +14,14 @@ NOCOLOR = '\033[0m'
 #GITHUB URL
 GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 
+#REDBOOK URL
+REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
+
 #devnull redirect destination
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.11"
+HOH_VERSION = "1.12"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -461,6 +464,39 @@ def config_parser(conf_lines):
                     config.append({line[0]: " ".join(line[1:])})
     return config
 
+def print_important_multipath_values(svc_multipath_dictionary):
+    #We show the JSON values that have to be in the configuration
+    print
+    print (YELLOW + "Be sure to check that your current multipath.conf has the following attributtes set:" + NOCOLOR)
+    print
+    for mp_attr in svc_multipath_dictionary.keys():
+        if mp_attr != "json_version":
+            mp_value = str(svc_multipath_dictionary[mp_attr])
+            print("\t" + mp_attr + "\t  --->\t" + mp_value)
+    print
+    print ("For a multipath.conf example for IBM Spectrum Virtualize storage (2145) with HANA please check Appendix B of " + REDBOOK_URL)
+    print
+
+
+def detect_disk_type(disk_type):
+    #Will do a simple check on /proc/scsi/sg/device_strs for disk_type > 0
+    try:
+        cat_scsi_sg = subprocess.Popen(['cat', '/proc/scsi/sg/device_strs'], stdout=subprocess.PIPE, stderr=DEVNULL)
+        grep_disk_type = subprocess.Popen(['grep', disk_type], stdin=cat_scsi_sg.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
+        cat_scsi_sg.wait()
+        wc_proc = subprocess.Popen(['wc', '-l'], stdin=grep_disk_type.stdout, stdout=subprocess.PIPE, stderr=DEVNULL)
+        grep_disk_type.wait()
+
+        number_of_disk_type = wc_proc.stdout.read()
+        wc_proc.wait()
+
+        if int(number_of_disk_type) > 0:
+            return 1
+        else:
+            return 0
+    except:
+            sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read proc/scsi/sg/device_strs\n")
+
 def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath):
     #End summary and say goodbye
     print
@@ -552,10 +588,21 @@ def main():
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
     #Check multipath
-    if with_multipath == 1 and storage == 'XFS':
-        print (YELLOW + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
-        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
-        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+    if storage == 'XFS':
+        print ("Checking simple multipath.conf test")
+        print
+        #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+        #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+        is_2145 = detect_disk_type("2145")
+        if is_2145 == 1: #If this is 2145 lets check if there is a multipath.cpnf file
+            print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
+            if os.path.isfile('/etc/multipath.conf') == True:
+                print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
+                print_important_multipath_values(svc_multipath_dictionary)
+            else:
+                print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
+        elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
+            print(YELLOW + "WARNING: " + NOCOLOR + " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
 
     #Exit protocol
     DEVNULL.close()
