@@ -18,7 +18,7 @@ GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.8"
+HOH_VERSION = "1.9"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -38,8 +38,18 @@ def check_parameters():
         print
         sys.exit(error_message)
 
+    #Optional --with-multipath argument
+    try: #in case no argument is passed
+        argument2=sys.argv[2]
+        if argument2 == '--with-multipath':
+            with_multipath = 1
+        else:
+            with_multipath = 0
+    except:
+        with_multipath = 0
+
     if argument1.upper() in ('XFS', 'NFS', 'ESS'): #To check is a wanted argument
-        return argument1.upper()
+        return argument1.upper(),with_multipath
     else:
         print
         sys.exit(error_message)
@@ -48,19 +58,20 @@ def show_header(hoh_version,json_version):
     #Say hello and give chance to disagree to the no warranty of any kind
     while True:
         print
-        print(GREEN + "Welcome to HANA OS Healthchecker (hoh) version " + hoh_version + NOCOLOR)
+        print(GREEN + "Welcome to HANA OS Healthchecker (HOH) version " + hoh_version + NOCOLOR)
         print
-        print("Please use " + GITHUB_URL + " to get latest versions and report issues about hoh.")
+        print("Please use " + GITHUB_URL + " to get latest versions and report issues about HOH.")
         print
         print("The purpose of hoh is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP")
         print
         print("You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note")
         print
         print("JSON files versions:")
-        print("\tsupported OS:\t\t" + json_version['supported_OS'])
-        print("\tsysctl: \t\t" + json_version['sysctl'])
-        print("\tpackages: \t\t" + json_version['packages'])
-        print("\tibm power packages:\t" + json_version['ibm_power_packages'])
+        print("\tSupported OS:\t\t\t\t" + json_version['supported_OS'])
+        print("\tsysctl: \t\t\t\t" + json_version['sysctl'])
+        print("\tPackages: \t\t\t\t" + json_version['packages'])
+        print("\tIBM Power packages:\t\t\t" + json_version['ibm_power_packages'])
+        print("\tIBM Spectrum Virtualize multipath:\t") + json_version['svc_multipath']
         print
         print(RED + "This software comes with absolutely no warranty of any kind. Use it at your own risk" + NOCOLOR)
         print
@@ -154,7 +165,7 @@ def check_selinux():
 
     return errors
 
-def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary):
+def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary,svc_multipath_dictionary):
     #Gets the versions of the json files into a dictionary
     json_version = {}
 
@@ -178,6 +189,12 @@ def get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_po
         json_version['ibm_power_packages'] = ibm_power_packages_dictionary['json_version']
     except:
         sys.exit(RED + "QUIT: " + NOCOLOR + "Cannot load version from IBM Power packages JSON")
+
+    try:
+        json_version['svc_multipath'] = svc_multipath_dictionary['json_version']
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "Cannot load version from IBM 2145 mulitpath JSON")
+
 
     #If we made it this far lets return the dictionary. This was being stored in its own file before
     return json_version
@@ -370,16 +387,93 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
     print
     return(errors)
 
-def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
+def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
+    #Missing warnings and header
+    mp_errors = 0
+    for mp_attr in svc_multipath_dictionary.keys():
+        mp_value = svc_multipath_dictionary[mp_attr]
+        #We go to check each entry on the JSON to both defaults and devices
+        #We assume only defaults or devices contains the configuration for multipath
+        #Lets look at defaults first if what we look is not there or worng value mark errors
+        #If does not exist we move to look into devices 2145
+        if mp_attr == 'json_version': #Ignore JSON version
+            continue
+
+
+        for item in mp_conf_dictionary:
+            is_found = 0
+            if 'defaults' in item:
+                for default in item['defaults']:
+                    if mp_attr in default:
+                        is_found = 1
+                        current_value = default[mp_attr]
+                        if current_value == mp_value:
+                            print(GREEN + "OK: " + NOCOLOR + mp_attr + " has the recommended value of " + str(mp_value))
+                        else:
+                            print (RED + "ERROR: " + NOCOLOR + mp_attr + " is " + str(current_value) + " and should be " + str(mp_value))
+                            mp_errors = mp_errors + 1
+            #if 'devices' in item:
+            #    for devices in item['devices']:
+            #        if 'device' in devices:
+            #            for device in devices:
+            #                if device['vendor'] != "IBM" or device['product'] != "2145":
+            ##                    no_ibm_storage = 1
+    return mp_errors
+
+
+def load_multipath(multipath_file):
+    #Load multipath file
+    print("Loading multipath file")
+    try:
+        with open(multipath_file, 'r') as mp_file:
+            mp_dictionary = config_parser(mp_file)
+            return mp_dictionary
+    except:
+        sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read multipath file "+ multipath_file +" \n")
+
+def config_parser(conf_lines):
+    config = []
+
+    # iterate on config lines
+    for line in conf_lines:
+        #Get rid of inline comments
+        line = line.split('#')[0]
+        # remove left and right spaces
+        line = line.strip()
+        line = line.translate(None, '"')
+
+        if line.startswith('#'):
+            # skip comment lines
+            continue
+        elif line.endswith('{'):
+            # new dict (notice the recursion here)
+            config.append({line.split()[0]: config_parser(conf_lines)})
+        else:
+            # inside a dict
+            if line.endswith('}'):
+                # end of current dict
+                break
+            else:
+                # parameter line
+                line = line.split()
+                if len(line) > 1:
+                    config.append({line[0]: " ".join(line[1:])})
+    return config
+
+def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors):
     #End summary and say goodbye
     print
     print("The summary of this run:")
     print
 
-    if selinux_errors > 0:
-        print(RED + "\tSELinux reported deviations" + NOCOLOR)
-    else:
-        print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
+    if linux_distribution == "redhat":
+        if selinux_errors > 0:
+            print(RED + "\tSELinux reported deviations" + NOCOLOR)
+        else:
+            print(GREEN + "\tSELinux reported no deviations" + NOCOLOR)
+
+    if linux_distribution == "suse":
+        print(GREEN + "\tSELinux not tested" + NOCOLOR)
 
     if timedatectl_errors > 0:
         print(RED + "\ttime configuration reported " + str(timedatectl_errors) + " deviation[s]" + NOCOLOR)
@@ -410,16 +504,17 @@ def print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warning
 
 def main():
     #Check parameters are passed
-    storage = check_parameters()
+    storage,with_multipath = check_parameters()
 
     #JSON loads
     os_dictionary = load_json("supported_OS.json")
     sysctl_dictionary = load_json(storage + "_sysctl.json")
     packages_dictionary = load_json("packages.json")
     ibm_power_packages_dictionary = load_json("ibm_power_packages.json")
+    svc_multipath_dictionary = load_json("2145_multipath.json")
 
     #Initial header and checks
-    json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary)
+    json_version = get_json_versions(os_dictionary,sysctl_dictionary,packages_dictionary,ibm_power_packages_dictionary,svc_multipath_dictionary)
     show_header(HOH_VERSION,json_version)
     check_processor()
 
@@ -432,7 +527,6 @@ def main():
         check_os_redhat(os_dictionary)
     else:
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot determine Linux distribution\n")
-
 
     #Run
     if linux_distribution == "redhat": #This has being checked already so it is a "good" variable
@@ -453,9 +547,15 @@ def main():
 
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
+    #Check multipath
+    if with_multipath == 1 and storage == 'XFS':
+        print (YELLOW + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
+        mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+        multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+
     #Exit protocol
     DEVNULL.close()
-    print_errors(selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
+    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors)
     print
     print
 
