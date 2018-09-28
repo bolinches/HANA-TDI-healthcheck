@@ -503,7 +503,7 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
     else:
         print(GREEN + "\tIBM service and productivity tools packages reported no deviations" + NOCOLOR)
 
-    if with_multipath = 1:
+    if with_multipath == 1:
         print(YELLOW + "\tmultipath option was called. Please refer to storage vendor documentation for recommended settings" + NOCOLOR)
 
 def main():
