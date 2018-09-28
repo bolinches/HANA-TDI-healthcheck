@@ -14,6 +14,9 @@ NOCOLOR = '\033[0m'
 #GITHUB URL
 GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 
+#REDBOOK URL
+REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
+
 #devnull redirect destination
 DEVNULL = open(os.devnull, 'w')
 
@@ -464,12 +467,14 @@ def config_parser(conf_lines):
 def print_important_multipath_values(svc_multipath_dictionary):
     #We show the JSON values that have to be in the configuration
     print
-    print (YELLOW + "Be sure to check that your current multipath.conf has the following attributes set to the recommended values:" + NOCOLOR)
+    print (YELLOW + "Be sure to check that your current multipath.conf has the following attributtes set:" + NOCOLOR)
     print
     for mp_attr in svc_multipath_dictionary.keys():
         if mp_attr != "json_version":
             mp_value = str(svc_multipath_dictionary[mp_attr])
             print("\t" + mp_attr + "\t  --->\t" + mp_value)
+    print
+    print ("For an example for IBM Spectrum Virtualize storage storage (2145) please check Appendix B of " + REDBOOK_URL)
     print
 
 
@@ -583,8 +588,9 @@ def main():
     ibm_power_packages_errors = ibm_power_package_check(ibm_power_packages_dictionary)
 
     #Check multipath
-    if with_multipath == 1 and storage == 'XFS':
-        print (RED + "Multipath checker is work in progress and for 2145 devices only" + NOCOLOR)
+    if storage == 'XFS':
+        print ("Checking simple multipath.conf test")
+        print
         #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
         #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
         is_2145 = detect_disk_type("2145")
