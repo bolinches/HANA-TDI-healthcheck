@@ -29,26 +29,27 @@ cd HANA-TDI-healthcheck
 At this point the tool starts
 
 ```
-Welcome to HANA OS Healthchecker (hoh) version 1.14
+Welcome to HANA OS Healthchecker (HOH) version 1.14
 
-Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about hoh.
+Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about HOH.
 
-The purpose of hoh is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP
+The purpose of HOH is to supplement the official tools like HWCCT not to substitute them, always refer to official documentation from IBM, SuSE/RedHat, and SAP
 
 You should always check your system with latest version of HWCCT as explained on SAP note:1943937 - Hardware Configuration Check Tool - Central Note
 
 JSON files versions:
-        supported OS:           0.4
-        sysctl:                 1.3
-        packages:               0.2
-        ibm power packages:     0.4
+        Supported OS:                           0.6
+        sysctl:                                 1.3
+        Packages:                               0.2
+        IBM Power packages:                     0.4
+        IBM Spectrum Virtualize multipath:      1.0
 
 This software comes with absolutely no warranty of any kind. Use it at your own risk
 
 Do you want to continue? (y/n):
  ```
 
-You can the agree or disagree to run hoh
+You can the agree or disagree to run HOH
 
 As example output of a SuSE system:
 
