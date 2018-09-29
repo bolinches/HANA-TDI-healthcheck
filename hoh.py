@@ -21,7 +21,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.12"
+HOH_VERSION = "1.13"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -298,6 +298,7 @@ def tuned_adm_check():
 def saptune_check():
     #It uses saptune command to check the solution and show the avaialble notes. Changes version to version of saptune, we are just calling saptune
     errors = 0
+    print
     print("Checking if saptune solution is set to HANA")
     print
     try:
@@ -497,7 +498,26 @@ def detect_disk_type(disk_type):
     except:
             sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read proc/scsi/sg/device_strs\n")
 
-def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath):
+def simple_multipath_check():
+    error = 0
+    print ("Checking simple multipath.conf test")
+    print
+    #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
+    #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
+    is_2145 = detect_disk_type("2145")
+    if is_2145 == 1: #If this is 2145 lets check if there is a multipath.cpnf file
+        print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
+        if os.path.isfile('/etc/multipath.conf') == True:
+            print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
+            print_important_multipath_values(svc_multipath_dictionary)
+        else:
+            print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
+            error = 1
+    elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
+        print(YELLOW + "WARNING: " + NOCOLOR + " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
+    return error
+
+def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath):
     #End summary and say goodbye
     print
     print("The summary of this run:")
@@ -538,6 +558,9 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
         print(RED + "\tIBM service and productivity tools packages reported deviations" + NOCOLOR)
     else:
         print(GREEN + "\tIBM service and productivity tools packages reported no deviations" + NOCOLOR)
+
+    if multipath_errors == 1:
+        print(RED + "\tXFS with IBM Spectrum Virtualize in use and no multipath.conf file detected" + NOCOLOR)
 
     if with_multipath == 1:
         print(YELLOW + "\tmultipath option was called. Please refer to storage vendor documentation for recommended settings" + NOCOLOR)
@@ -589,24 +612,11 @@ def main():
 
     #Check multipath
     if storage == 'XFS':
-        print ("Checking simple multipath.conf test")
-        print
-        #mp_conf_dictionary = load_multipath("/etc/multipath.conf")
-        #multipath_errors = multipath_checker(svc_multipath_dictionary,mp_conf_dictionary)
-        is_2145 = detect_disk_type("2145")
-        if is_2145 == 1: #If this is 2145 lets check if there is a multipath.cpnf file
-            print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
-            if os.path.isfile('/etc/multipath.conf') == True:
-                print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
-                print_important_multipath_values(svc_multipath_dictionary)
-            else:
-                print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
-        elif is_2145 == 0: #This is NOT 2145 so lets just throw a warning to go check vendor for recommended values
-            print(YELLOW + "WARNING: " + NOCOLOR + " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
+        multipath_errors = simple_multipath_check()
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,with_multipath)
+    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath)
     print
     print
 
