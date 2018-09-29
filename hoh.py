@@ -21,7 +21,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.13"
+HOH_VERSION = "1.14"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -498,7 +498,7 @@ def detect_disk_type(disk_type):
     except:
             sys.exit(RED + "QUIT: " + NOCOLOR + "cannot read proc/scsi/sg/device_strs\n")
 
-def simple_multipath_check():
+def simple_multipath_check(multipath_dictionary):
     error = 0
     print ("Checking simple multipath.conf test")
     print
@@ -509,7 +509,7 @@ def simple_multipath_check():
         print(GREEN + "OK: " + NOCOLOR +  " 2145 disk type detected")
         if os.path.isfile('/etc/multipath.conf') == True:
             print(GREEN + "OK: " + NOCOLOR +  " multipath.conf exists")
-            print_important_multipath_values(svc_multipath_dictionary)
+            print_important_multipath_values(multipath_dictionary)
         else:
             print(RED + "ERROR: " + NOCOLOR + " multipath.conf does not exists")
             error = 1
@@ -612,7 +612,7 @@ def main():
 
     #Check multipath
     if storage == 'XFS':
-        multipath_errors = simple_multipath_check()
+        multipath_errors = simple_multipath_check(svc_multipath_dictionary)
 
     #Exit protocol
     DEVNULL.close()

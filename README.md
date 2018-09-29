@@ -29,7 +29,7 @@ cd HANA-TDI-healthcheck
 At this point the tool starts
 
 ```
-Welcome to HANA OS Healthchecker (hoh) version 1.8
+Welcome to HANA OS Healthchecker (hoh) version 1.14
 
 Please use https://github.com/bolinches/HANA-TDI-healthcheck to get latest versions and report issues about hoh.
 
