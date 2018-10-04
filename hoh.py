@@ -14,6 +14,9 @@ NOCOLOR = '\033[0m'
 #GITHUB URL
 GITHUB_URL = "https://github.com/bolinches/HANA-TDI-healthcheck"
 
+#IBM_STORAGE_SIZING_GUIDELINE
+IBM_STORAGE_SIZING_GUIDELINE="https://www-01.ibm.com/support/docview.wss?uid=tss1flash10859&aid=1"
+
 #REDBOOK URL
 REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 
@@ -21,7 +24,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.14"
+HOH_VERSION = "1.15"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -517,7 +520,7 @@ def simple_multipath_check(multipath_dictionary):
         print(YELLOW + "WARNING: " + NOCOLOR + " this is not IBM Spectrum Virtualize storage, please refer to storage vendor documentation for recommended settings")
     return error
 
-def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath):
+def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath,ibm_storage):
     #End summary and say goodbye
     print
     print("The summary of this run:")
@@ -564,6 +567,9 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
 
     if with_multipath == 1:
         print(YELLOW + "\tmultipath option was called. Please refer to storage vendor documentation for recommended settings" + NOCOLOR)
+
+    if ibm_storage == 1:
+        print(YELLOW + "\t2145 disk detected. Be sure to follow IBM Storage sizing guidelines: " + IBM_STORAGE_SIZING_GUIDELINE + NOCOLOR)
 
 def main():
     #Check parameters are passed
@@ -613,10 +619,11 @@ def main():
     #Check multipath
     if storage == 'XFS':
         multipath_errors = simple_multipath_check(svc_multipath_dictionary)
+        ibm_storage = detect_disk_type("2145")
 
     #Exit protocol
     DEVNULL.close()
-    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath)
+    print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_errors,sysctl_warnings,sysctl_errors,packages_errors,ibm_power_packages_errors,multipath_errors,with_multipath,ibm_storage)
     print
     print
 
