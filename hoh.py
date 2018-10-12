@@ -24,7 +24,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.15"
+HOH_VERSION = "1.16"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -161,10 +161,10 @@ def check_selinux():
         sys.exit(RED + "QUIT: " + NOCOLOR + "cannot run sestatus. It is a needed package for this tool\n") # Not installed or else.
 
     sestatus = subprocess.Popen(['sestatus'], stdout=subprocess.PIPE)
-    grep_rc_ntp = subprocess.call(['grep', 'disabled'], stdin=sestatus.stdout, stdout=DEVNULL, stderr=DEVNULL)
+    grep_rc_selinux = subprocess.call(['grep', 'disabled'], stdin=sestatus.stdout, stdout=DEVNULL, stderr=DEVNULL)
     sestatus.wait()
 
-    if grep_rc_ntp == 0: #Is configured
+    if grep_rc_selinux == 0: #Is disabled
         print(GREEN + "OK: " + NOCOLOR + "SELinux is disabled in this system")
     else: #None found
         print(RED + "ERROR: " + NOCOLOR + "SELinux is not disabled in this system")
