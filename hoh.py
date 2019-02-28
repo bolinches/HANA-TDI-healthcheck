@@ -24,7 +24,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.16"
+HOH_VERSION = "1.17"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -391,7 +391,7 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
             elif current_package_rc == expected_package_rc == 1:
                 print(GREEN + "OK: " + NOCOLOR + package + " installation status is not installed")
             else:
-                print(YELLOW + "WARNING: " + NOCOLOR + package + " installation status is *NOT* as expected. Check that at least one package is installed")
+                print(YELLOW + "WARNING: " + NOCOLOR + package + " installation status is *NOT* as expected. This is not a problem by itself. Check the summary at the end of the run")
     print
     return(errors)
 
