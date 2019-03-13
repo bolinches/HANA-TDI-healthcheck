@@ -24,7 +24,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.17"
+HOH_VERSION = "1.18"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -548,7 +548,7 @@ def print_errors(linux_distribution,selinux_errors,timedatectl_errors,saptune_er
     if sysctl_errors > 0:
         print(RED + "\tsysctl reported " + str(sysctl_errors) + " deviation[s] and " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
     elif sysctl_warnings > 0:
-        print (YELLOW + "\tsysctl reported " + sysctl_warnings + " warning[s]" + NOCOLOR)
+        print (YELLOW + "\tsysctl reported " + str(sysctl_warnings) + " warning[s]" + NOCOLOR)
     else:
         print(GREEN + "\tsysctl reported no deviations" + NOCOLOR)
 
