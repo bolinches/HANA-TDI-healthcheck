@@ -397,6 +397,7 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
         print(GREEN + "OK: " + NOCOLOR + " IBM service and productivity tools packages install status is as expected")
     else:
         print(ERROR + "ERROR: " + NOCOLOR + " IBM service and productivity tools packages install status is *NOT* as expected")
+    print
     return(errors)
 
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
