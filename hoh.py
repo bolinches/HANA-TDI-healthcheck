@@ -24,7 +24,7 @@ REDBOOK_URL = "REDBOOK URL NOT PUBLIC"
 DEVNULL = open(os.devnull, 'w')
 
 #This script version, independent from the JSON versions
-HOH_VERSION = "1.18"
+HOH_VERSION = "1.19"
 
 def load_json(json_file_str):
     #Loads  JSON into a dictionary or quits the program if it cannot. Future might add a try to donwload the JSON if not available before quitting
@@ -393,6 +393,8 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
             else:
                 print(YELLOW + "WARNING: " + NOCOLOR + package + " installation status is *NOT* as expected. This is not a problem by itself. Check the summary at the end of the run")
     print
+    if errors = 0:
+        print(GREEN + "OK: " + NOCOLOR + " IBM service and productivity tools packages install status id correct")
     return(errors)
 
 def multipath_checker(svc_multipath_dictionary,mp_conf_dictionary):
