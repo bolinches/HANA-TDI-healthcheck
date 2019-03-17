@@ -393,7 +393,7 @@ def ibm_power_package_check(ibm_power_packages_dictionary):
             else:
                 print(YELLOW + "WARNING: " + NOCOLOR + package + " installation status is *NOT* as expected. This is not a problem by itself. Check the summary at the end of the run")
     print
-    if errors = 0:
+    if errors == 0:
         print(GREEN + "OK: " + NOCOLOR + " IBM service and productivity tools packages install status is as expected")
     else:
         print(ERROR + "ERROR: " + NOCOLOR + " IBM service and productivity tools packages install status is *NOT* as expected")
