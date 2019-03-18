@@ -1,10 +1,9 @@
 {
-  "json_version": "1.1",
+  "json_version": "1.2",
   "vendor": "IBM",
   "product": "2145",
   "failback": "immediate",
   "no_path_retry": "fail",
-  "dev_loss_tmo": "600",
   "path_checker": "tur",
   "path_grouping_policy": "group_by_prio",
   "path_selector": "service-time 0",
